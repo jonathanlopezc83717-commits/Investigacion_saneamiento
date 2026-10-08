@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Monitoreo del Río Verde</title>
+<meta name="description" content="Simulador del costo y la duración de un programa de monitoreo de calidad del agua del Río Verde, Naucalpan de Juárez, Estado de México.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3C16 3 6 15 6 21a10 10 0 0 0 20 0C26 15 16 3 16 3z' fill='%23156B4C'/%3E%3C/svg%3E">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: panel de supuestos fijo a la izquierda, resultados a la derecha; una columna en teléfono */
+:root {
+  --bg: #f4f6f4;
+  --surface: #ffffff;
+  --surface-2: #eef2ef;
+  --ink: #12201a;
+  --ink-2: #44524b;
+  --muted: #6b7871;
+  --line: #d5ddd8;
+  --accent: #156B4C;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcebe4;
+  --s1: #1E7A55; --s2: #3A6FB5; --s3: #B7791F; --s4: #A0457F;
+  --band: rgba(21,107,76,0.06);
+  --good: #0f7a3d; --good-bg: #e2f3e8;
+  --warn: #8a5a00; --warn-bg: #fbf0d6;
+  --bad: #a1271f; --bad-bg: #f9e3e0;
+  --after: rgba(58,111,181,0.07);
+  --font-ui: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101513; --surface: #171e1b; --surface-2: #1e2723; --ink: #e8efeb; --ink-2: #b8c4be; --muted: #8d9a93;
+    --line: #2c3833; --accent: #3fa97c; --accent-ink: #0b1410; --accent-soft: #1d3a2e;
+    --s1: #2E9A6C; --s2: #4F83CF; --s3: #C08530; --s4: #B85A97; --band: rgba(63,169,124,0.08);
+    --good: #6fd39a; --good-bg: #173326; --warn: #f0c46a; --warn-bg: #3a2e12; --bad: #ff9a8f; --bad-bg: #3d1c19;
+    --after: rgba(79,131,207,0.10); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101513; --surface: #171e1b; --surface-2: #1e2723; --ink: #e8efeb; --ink-2: #b8c4be; --muted: #8d9a93;
+  --line: #2c3833; --accent: #3fa97c; --accent-ink: #0b1410; --accent-soft: #1d3a2e;
+  --s1: #2E9A6C; --s2: #4F83CF; --s3: #C08530; --s4: #B85A97; --band: rgba(63,169,124,0.08);
+  --good: #6fd39a; --good-bg: #173326; --warn: #f0c46a; --warn-bg: #3a2e12; --bad: #ff9a8f; --bad-bg: #3d1c19;
+  --after: rgba(79,131,207,0.10); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+header.top { display: grid; gap: 6px; margin-bottom: 22px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+h1 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.12; margin: 0; font-weight: 800; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 78ch; margin: 4px 0 0; }
+.layout { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* panel de supuestos */
+aside.panel { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 6px 16px 16px; }
+@media (max-width: 960px) { aside.panel { position: static; max-height: none; } }
+.panel details { border-bottom: 1px solid var(--line); padding-block: 10px; }
+.panel details:last-of-type { border-bottom: 0; }
+.panel summary { cursor: pointer; font-weight: 700; font-size: 14px; list-style: none; display: flex; justify-content: space-between; align-items: center; padding-block: 4px; }
+.panel summary::-webkit-details-marker { display: none; }
+.panel summary::after { content: "+"; color: var(--muted); font-weight: 500; font-size: 18px; }
+.panel details[open] summary::after { content: "–"; }
+.field { display: grid; gap: 4px; margin-top: 10px; }
+.field label, .lbl { font-size: 12.5px; color: var(--ink-2); font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+.field label output, .lbl output { font-family: var(--font-num); color: var(--ink); font-weight: 500; }
+.hint { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+input[type=number], select { width: 100%; font: inherit; font-size: 14px; font-family: var(--font-num); color: var(--ink); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 7px; padding: 6px 8px; min-width: 0; }
+select { font-family: var(--font-ui); }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--ink-2); margin-top: 10px; }
+input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; cursor: pointer; }
+.btn { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 7px; padding: 8px 12px; font-weight: 700; font-size: 13px; }
+.btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.points-list { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.points-list li { font-size: 12.5px; color: var(--ink-2); display: flex; gap: 8px; align-items: baseline; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
+@media (max-width: 900px) { .facts { grid-template-columns: minmax(0, 1fr); } }
+.fact { border-top: 2px solid var(--accent); padding-top: 8px; font-size: 13.5px; color: var(--ink-2); display: grid; gap: 4px; align-content: start; }
+.fact b { color: var(--ink); font-size: 14px; }
+.fact a { color: var(--accent); font-size: 12.5px; }
+.points-list b { font-family: var(--font-num); color: var(--ink); font-weight: 600; min-width: 22px; }
+
+/* resultados */
+main { display: grid; gap: 22px; min-width: 0; }
+section.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px 20px; min-width: 0; }
+section.card > h2 { font-size: 19px; margin: 0 0 4px; font-weight: 750; letter-spacing: -0.005em; text-wrap: balance; }
+section.card > .sub { color: var(--ink-2); margin: 0 0 14px; max-width: 80ch; font-size: 14px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1180px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .kpis { grid-template-columns: minmax(0, 1fr); } }
+.kpi { background: var(--surface-2); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.kpi .k { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+.kpi .v { font-family: var(--font-num); font-size: 26px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.kpi .v small { font-size: 14px; color: var(--ink-2); font-weight: 500; }
+.kpi .d { font-size: 12.5px; color: var(--muted); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; width: fit-content; margin-top: 4px; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.good { color: var(--good); background: var(--good-bg); }
+.chip.warn { color: var(--warn); background: var(--warn-bg); }
+.chip.bad { color: var(--bad); background: var(--bad-bg); }
+.verdict { margin: 16px 0 0; padding: 12px 14px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; font-size: 14.5px; max-width: 95ch; }
+.split { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1100px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.chart { position: relative; width: 100%; min-width: 0; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--font-ui); fill: var(--muted); font-size: 11.5px; }
+.chart .ax { stroke: var(--line); }
+.chart .grid { stroke: var(--line); stroke-dasharray: 2 3; opacity: 0.8; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; padding: 7px 9px; border-radius: 6px; line-height: 1.4;
+  white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .12s; z-index: 3; font-variant-numeric: tabular-nums; }
+.tip.on { opacity: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); margin: 0 0 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.legend i.dot { width: 9px; height: 9px; border-radius: 50%; }
+.legend i.box { width: 11px; height: 11px; border-radius: 3px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--ink-2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--surface-2); }
+td.num, th.num { text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.grp td { background: var(--surface-2); font-weight: 700; font-size: 12.5px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+tr.total td { font-weight: 700; border-top: 2px solid var(--ink-2); }
+td input[type=number] { width: 104px; text-align: right; padding: 4px 6px; font-size: 13px; }
+td .note { display: block; font-size: 12px; color: var(--muted); }
+.tag { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--warn-bg); color: var(--warn); margin-left: 6px; white-space: nowrap; }
+.mdc td:first-child { font-family: var(--font-num); }
+.gantt { display: grid; gap: 8px; }
+.gantt .lane { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 13px; }
+.gantt .track { position: relative; height: 26px; background: var(--surface-2); border-radius: 6px; }
+.gantt .bar { position: absolute; top: 3px; bottom: 3px; border-radius: 4px; display: flex; align-items: center; padding-inline: 8px; font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; white-space: nowrap; }
+.gantt .tick { position: absolute; top: 5px; bottom: 5px; width: 2px; background: var(--s2); border-radius: 1px; }
+.gantt .rep { position: absolute; top: 7px; width: 10px; height: 10px; background: var(--s4); transform: translateX(-50%) rotate(45deg); }
+.gantt .scale { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; font-size: 11.5px; color: var(--muted); }
+.gantt .scale .ticks { position: relative; height: 16px; }
+.gantt .scale .ticks span { position: absolute; transform: translateX(-50%); font-family: var(--font-num); }
+.notes { display: grid; gap: 10px; font-size: 13.5px; color: var(--ink-2); max-width: 95ch; }
+.notes p { margin: 0; }
+.notes a, .src a { color: var(--accent); }
+.src { font-size: 13px; color: var(--ink-2); padding-left: 18px; margin: 8px 0 0; display: grid; gap: 4px; }
+.cols2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 900px) { .cols2 { grid-template-columns: minmax(0, 1fr); } }
+h3 { font-size: 15px; margin: 6px 0 8px; }
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Naucalpan de Juárez, Estado de México · Monitoreo con laboratorio acreditado</div>
+    <h1>Río Verde: cuánto cuesta y cuánto tarda demostrar su saneamiento</h1>
+    <p class="lede">Simulamos un programa de muestreo con laboratorio acreditado a lo largo del Río Verde, desde el desfogue de la Presa Los Cuartos hasta su último tramo. Al mover los supuestos de la izquierda se recalculan los componentes, el costo en pesos y los meses de muestreo necesarios para que una mejora en el río sea estadísticamente significativa. No hay datos de calidad del agua del Río Verde publicados con cifras: los valores de partida son supuestos que hay que sustituir con la primera campaña.</p>
+  </header>
+
+  <div class="layout">
+    <aside class="panel" aria-label="Supuestos de la simulación">
+      <details open>
+        <summary>Red y calendario</summary>
+        <div class="field">
+          <label for="points">Puntos de monitoreo <output id="pointsOut">4</output></label>
+          <input type="range" id="points" min="3" max="5" step="1" value="4">
+          <ul class="points-list" id="pointsList"></ul>
+          <div class="hint" style="margin-top:6px">Ubicaciones propuestas; se fijan con coordenadas en un recorrido de campo con OAPAS.</div>
+        </div>
+        <div class="field">
+          <label for="freq">Frecuencia de campañas</label>
+          <select id="freq">
+            <option value="0.3333333333">Trimestral</option>
+            <option value="0.5">Bimestral</option>
+            <option value="1" selected>Mensual</option>
+            <option value="2">Quincenal</option>
+            <option value="4">Semanal</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="startMonth">Primera campaña</label><select id="startMonth"></select></div>
+          <div class="field"><label for="extraRain">Campañas extra en lluvias</label>
+            <select id="extraRain"><option value="0">Ninguna</option><option value="1">1 al año</option><option value="2" selected>2 al año</option><option value="3">3 al año</option><option value="4">4 al año</option></select></div>
+        </div>
+        <div class="hint">Las campañas extra caen entre junio y septiembre para ver el primer lavado del cauce; suman costo pero no entran en la prueba estadística.</div>
+        <div class="row3">
+          <div class="field"><label for="monthsB">Línea base</label><input type="number" id="monthsB" min="1" max="120" value="18"></div>
+          <div class="field"><label for="monthsW">Obra</label><input type="number" id="monthsW" min="0" max="60" value="6"></div>
+          <div class="field"><label for="monthsP">Seguimiento</label><input type="number" id="monthsP" min="1" max="120" value="18"></div>
+        </div>
+        <div class="hint">Meses de cada fase. La obra es el periodo en que se construye o arranca el saneamiento.</div>
+        <label class="check"><input type="checkbox" id="monitorWorks" checked> Seguir muestreando durante la obra</label>
+        <div style="margin-top:12px"><button class="btn" id="useRec" type="button">Usar la duración recomendada</button></div>
+      </details>
+
+      <details open>
+        <summary>Prueba estadística</summary>
+        <div class="field">
+          <label for="target">Parámetro con el que se demuestra el cambio</label>
+          <select id="target">
+            <option value="dbo" selected>DBO5</option>
+            <option value="dqo">DQO</option>
+            <option value="sst">Sólidos suspendidos totales</option>
+            <option value="cf">Coliformes fecales</option>
+            <option value="nt">Nitrógeno total</option>
+            <option value="pt">Fósforo total</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="design">Diseño del muestreo</label>
+          <select id="design">
+            <option value="baci" selected>Control-impacto: desfogue de la presa vs Altamira</option>
+            <option value="ba">Antes y después en un solo punto</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="change">Reducción que queremos demostrar <output id="changeOut">50 %</output></label>
+          <input type="range" id="change" min="10" max="80" step="5" value="50">
+        </div>
+        <div class="field">
+          <label for="cv">Coeficiente de variación entre muestras <span class="tag">supuesto</span></label>
+          <input type="number" id="cv" min="0.1" max="4" step="0.05" value="0.7">
+          <div class="hint">Desviación estándar entre la media. Sale de la línea base; mientras tanto usamos un valor típico por parámetro.</div>
+        </div>
+        <div class="field" id="rField">
+          <label for="r">Correlación aguas arriba–aguas abajo <output id="rOut">0.60</output></label>
+          <input type="range" id="r" min="0" max="0.9" step="0.05" value="0.6">
+          <div class="hint">Qué tanto suben y bajan juntos el punto control y el de impacto por lluvias o estiaje.</div>
+        </div>
+        <div class="field">
+          <label for="rho">Memoria entre campañas mensuales <output id="rhoOut">0.30</output></label>
+          <input type="range" id="rho" min="0" max="0.8" step="0.05" value="0.3">
+          <div class="hint">Autocorrelación: muestras cercanas en el tiempo se parecen y aportan menos información nueva.</div>
+        </div>
+        <div class="field">
+          <label for="seas">Variación estacional <output id="seasOut">±50 %</output></label>
+          <input type="range" id="seas" min="0" max="100" step="5" value="50">
+        </div>
+        <div class="row2">
+          <div class="field"><label for="power">Potencia</label>
+            <select id="power"><option value="0.8" selected>80 %</option><option value="0.9">90 %</option></select></div>
+          <div class="field"><label for="alpha">Significancia</label>
+            <select id="alpha"><option value="0.05" selected>5 %</option><option value="0.1">10 %</option></select></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="medDown">Mediana en Altamira <span class="tag">supuesto</span></label><input type="number" id="medDown" min="0.01" step="any" value="180"></div>
+          <div class="field"><label for="medUp">Mediana en el desfogue <span class="tag">supuesto</span></label><input type="number" id="medUp" min="0.01" step="any" value="60"></div>
+        </div>
+        <div class="hint" id="medUnits">mg/L, del orden de un agua residual municipal diluida. Solo dibujan la serie simulada; no cambian el tiempo ni el costo.</div>
+      </details>
+
+      <details>
+        <summary>Costos de campo e ingeniería</summary>
+        <div class="field">
+          <label for="samplingMode">Cobro del muestreo</label>
+          <select id="samplingMode"><option value="point" selected>Por punto muestreado</option><option value="day">Por día de técnico</option></select>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="samplingPoint">Por punto ($)</label><input type="number" id="samplingPoint" min="0" step="any" value="879.80"></div>
+          <div class="field"><label for="samplingDay">Por día ($)</label><input type="number" id="samplingDay" min="0" step="any" value="4110"></div>
+        </div>
+        <div class="field"><label for="pointsPerDay">Puntos que muestrea un técnico por día <span class="tag">supuesto</span></label><input type="number" id="pointsPerDay" min="1" max="10" value="4"></div>
+        <div class="field"><label for="travel">Viáticos por campaña ($) <span class="tag">supuesto</span></label><input type="number" id="travel" min="0" step="any" value="0">
+          <div class="hint">Uno de los laboratorios revisados no cobra viáticos a menos de 50 km del sitio; desde la zona metropolitana, Naucalpan suele quedar dentro de ese radio. Hay que confirmarlo al cotizar.</div></div>
+        <div class="field"><label for="qaPct">Control de calidad: duplicados y blancos <output id="qaOut">10 %</output></label>
+          <input type="range" id="qaPct" min="0" max="25" step="5" value="10"></div>
+        <label class="check"><input type="checkbox" id="flowOn"> Incluir aforo de caudal en cada punto</label>
+        <div class="field"><label for="flowPrice">Aforo por punto ($) <span class="tag">supuesto</span></label><input type="number" id="flowPrice" min="0" step="any" value="1200"></div>
+        <label class="check"><input type="checkbox" id="iva" checked> Sumar IVA de 16 % a los servicios externos</label>
+        <div class="field"><label for="rate">Costo de hora de ingeniería ($) <span class="tag">supuesto</span></label><input type="number" id="rate" min="0" step="any" value="850"></div>
+        <div class="row3">
+          <div class="field"><label for="designHours">Plan (h)</label><input type="number" id="designHours" min="0" value="40"></div>
+          <div class="field"><label for="reportHours">Trimestral (h)</label><input type="number" id="reportHours" min="0" value="24"></div>
+          <div class="field"><label for="finalHours">Final (h)</label><input type="number" id="finalHours" min="0" value="40"></div>
+        </div>
+        <div class="hint">Horas de ingeniería propia para diseñar el plan, revisar cada trimestre y hacer el informe final con la prueba estadística. Van sin IVA.</div>
+      </details>
+    </aside>
+
+    <main>
+      <section class="card" id="sitio">
+        <h2>El Río Verde hoy</h2>
+        <p class="sub">Lo que se sabe públicamente del río y que cambia el diseño del monitoreo.</p>
+        <div class="facts">
+          <div class="fact"><b>Es el desfogue de la Presa Los Cuartos</b>Recorre colonias como San Rafael Chamapa y Nueva San Rafael y se desbordó a la altura del puente vehicular de Altamira. El ayuntamiento lo incluye en el saneamiento del Río Hondo.<a href="https://naucalpan.gob.mx/supervisa-alcalde-isaac-montoya-zonas-afectadas-en-rio-verde-tras-lluvias-atipicas-la-presa-de-los-cuartos-no-se-desbordo/" target="_blank" rel="noopener">Ayuntamiento, 22 jun 2025</a></div>
+          <div class="fact"><b>Lleva aguas negras domésticas</b>El análisis municipal de junio de 2025 encontró materia orgánica y coliformes fecales "muy altos", sin publicar cifras. OAPAS descartó descargas industriales; un laboratorio particular revisaría metales, fósforo y detergentes.<a href="https://www.eluniversaledomex.com.mx/valle-de-mexico/naucalpan-el-rio-verde-lleno-de-heces-analisis-confirman-contaminacion-fecal/" target="_blank" rel="noopener">El Universal Edomex, 26 jun 2025</a></div>
+          <div class="fact"><b>Las lluvias lo vuelven peligroso</b>Con 50 mm de lluvia y un tapón de basura en el canal de desfogue se desbordó en junio de 2025, con espuma de hasta medio metro; en septiembre de 2024 el agua superó un metro en casas. Se retiraron 79 toneladas de basura del cauce.<a href="https://www.nmas.com.mx/estado-de-mexico/rio-verde-sera-estudiado-tras-desfogue-presa-los-cuartos-en-naucalpan-edomex/" target="_blank" rel="noopener">N+, 23 jun 2025</a></div>
+          <div class="fact"><b>Viene obra en la subcuenca</b>El saneamiento del Río Hondo prevé ampliar la PTAR Granjas de 25 a 200 L/s y construir la PTAR El Torito de 200 L/s, con 18 a 24 meses de construcción y licitación hacia finales de 2026.<a href="https://naucalpan.gob.mx/avances-estrategicos-en-naucalpan-para-el-rescate-y-saneamiento-del-rio-hondo/" target="_blank" rel="noopener">Ayuntamiento, 30 mar 2026</a></div>
+          <div class="fact"><b>Financiamiento ya autorizado</b>Climate Fund Managers, con apoyo de los Países Bajos, autorizó 70 millones de pesos; OAPAS lleva el proyecto bajo un esquema de asociación público-privada estatal.<a href="https://naucalpan.gob.mx/avanza-proyecto-de-saneamiento-del-rio-hondo-se-invertiran-recursos-por-70-mdp/" target="_blank" rel="noopener">Ayuntamiento, 20 nov 2025</a></div>
+          <div class="fact"><b>Qué implica para el monitoreo</b>Una línea base que arranque en estiaje de 2026 y corra mientras se construye la obra; detergentes en el paquete por la espuma; campañas extra en lluvias, y ninguna toma de muestra durante avenidas.</div>
+        </div>
+      </section>
+      <section class="card" id="resumen">
+        <h2>Resumen</h2>
+        <p class="sub" id="resumenSub"></p>
+        <div class="kpis">
+          <div class="kpi"><span class="k">Meses por periodo para detectar el cambio</span><span class="v" id="kMin">–</span><span class="d" id="kMinD"></span></div>
+          <div class="kpi"><span class="k">Potencia con el calendario actual</span><span class="v" id="kPow">–</span><span id="kPowChip"></span></div>
+          <div class="kpi"><span class="k">Duración total del programa</span><span class="v" id="kDur">–</span><span class="d" id="kDurD"></span></div>
+          <div class="kpi"><span class="k">Costo total estimado</span><span class="v" id="kCost">–</span><span class="d" id="kCostD"></span></div>
+        </div>
+        <p class="verdict" id="verdict"></p>
+      </section>
+
+      <section class="card" id="potencia">
+        <h2>¿Cuándo es significativo el monitoreo?</h2>
+        <p class="sub">Probabilidad de demostrar la reducción elegida según los meses de muestreo en cada periodo (antes y después, de igual duración). La línea es el cálculo analítico; los puntos son una simulación Monte Carlo de 500 ríos sintéticos por duración, con estacionalidad y autocorrelación.</p>
+        <div class="split">
+          <div>
+            <div class="toolbar">
+              <div class="legend"><span><i style="background:var(--s1)"></i>Cálculo analítico</span><span><i class="dot" style="background:var(--s2)"></i>Simulación Monte Carlo</span><span><i style="background:var(--muted);height:2px"></i>Potencia objetivo</span></div>
+              <span class="hint" id="mcStatus"></span>
+            </div>
+            <div class="chart" id="powerChart"><div class="tip"></div></div>
+          </div>
+          <div>
+            <h3>Cambio mínimo detectable</h3>
+            <div class="tbl-wrap"><table class="mdc"><thead><tr><th>Meses por periodo</th><th class="num">Campañas</th><th class="num">Reducción detectable</th></tr></thead><tbody id="mdcBody"></tbody></table></div>
+            <p class="hint" id="precHint" style="margin-top:10px"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="serie">
+        <h2>Cómo se vería una realización del monitoreo</h2>
+        <p class="sub" id="serieSub">Una serie simulada con los supuestos actuales, en escala logarítmica, sobre las bandas de clasificación de CONAGUA. Cada realización es distinta: así de ruidosa es una serie de muestras puntuales.</p>
+        <div class="toolbar">
+          <div class="legend"><span><i style="background:var(--s2)"></i>Desfogue de la Presa Los Cuartos (control)</span><span><i style="background:var(--s3)"></i>Puente de Altamira (impacto)</span><span><i class="box" style="background:var(--after)"></i>Después del saneamiento</span></div>
+          <button class="btn ghost" id="reseed" type="button">Otra realización</button>
+        </div>
+        <div class="chart" id="seriesChart"><div class="tip"></div></div>
+      </section>
+
+      <section class="card" id="componentes">
+        <h2>Componentes y costos</h2>
+        <p class="sub">Marcamos los parámetros que entran al paquete de laboratorio y ajustamos su precio por muestra. El precio de partida es la mediana de las listas publicadas que localizamos, sin IVA y sin actualizar a 2026.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Componente</th><th class="num">Precio unitario</th><th class="num">Cantidad</th><th class="num">Subtotal</th></tr></thead>
+            <tbody id="compBody"></tbody>
+          </table>
+        </div>
+        <h3 style="margin-top:22px">Gasto por mes</h3>
+        <div class="legend"><span><i class="box" style="background:var(--s1)"></i>Laboratorio</span><span><i class="box" style="background:var(--s2)"></i>Muestreo y aforo</span><span><i class="box" style="background:var(--s3)"></i>Viáticos</span><span><i class="box" style="background:var(--s4)"></i>Ingeniería</span></div>
+        <div class="chart" id="costChart"><div class="tip"></div></div>
+      </section>
+
+      <section class="card" id="calendario">
+        <h2>Calendario</h2>
+        <p class="sub">Fases del programa, campañas de muestreo e informes trimestrales.</p>
+        <div class="gantt" id="gantt"></div>
+      </section>
+
+      <section class="card" id="supuestos">
+        <h2>Supuestos, precios y fuentes</h2>
+        <div>
+          <div>
+            <h3>Precios publicados por parámetro (MXN por muestra, sin IVA)</h3>
+            <div class="tbl-wrap"><table><thead><tr><th>Parámetro</th><th class="num">Inter Lab 2025</th><th class="num">Microanálisis 2023</th><th class="num">Lista LAE160 2023</th></tr></thead><tbody id="priceSrcBody"></tbody></table></div>
+            <p class="hint" style="margin-top:8px">Muestreo de cuerpos receptores (NMX-AA-014-1980): Inter Lab 2025, $879.80 por muestreo; Microanálisis 2023, $4,110 por técnico por día. Paquete completo NOM-001-SEMARNAT-2021 de Laboratorio Ambiental Sigma (2023): $14,465 por 2 muestras y $23,595 por 6, más IVA. Toxicidad aguda y enterococos no aparecen con precio en las listas revisadas.</p>
+          </div>
+          <div style="margin-top:18px">
+            <h3>Escala de calidad de CONAGUA para aguas superficiales</h3>
+            <div class="tbl-wrap"><table><thead><tr><th>Clase</th><th class="num">DBO5 mg/L</th><th class="num">DQO mg/L</th><th class="num">SST mg/L</th><th class="num">CF NMP/100 mL</th></tr></thead>
+              <tbody>
+                <tr><td>Excelente</td><td class="num">≤ 3</td><td class="num">≤ 10</td><td class="num">≤ 25</td><td class="num">≤ 100</td></tr>
+                <tr><td>Buena calidad</td><td class="num">3–6</td><td class="num">10–20</td><td class="num">25–75</td><td class="num">100–200</td></tr>
+                <tr><td>Aceptable</td><td class="num">6–30</td><td class="num">20–40</td><td class="num">75–150</td><td class="num">200–1,000</td></tr>
+                <tr><td>Contaminada</td><td class="num">30–120</td><td class="num">40–200</td><td class="num">150–400</td><td class="num">1,000–10,000</td></tr>
+                <tr><td>Fuertemente contaminada</td><td class="num">&gt; 120</td><td class="num">&gt; 200</td><td class="num">&gt; 400</td><td class="num">&gt; 10,000</td></tr>
+              </tbody></table></div>
+          </div>
+        </div>
+        <h3 style="margin-top:20px">Cómo calcula el tablero</h3>
+        <div class="notes">
+          <p>Trabajamos con el logaritmo de las concentraciones, porque en ríos se distribuyen de forma sesgada. La reducción se prueba con una prueba t de dos colas sobre las medias logarítmicas de antes y después; en el diseño control-impacto la prueba se hace sobre la diferencia entre aguas abajo y aguas arriba de cada campaña, lo que cancela lluvias, estiaje y otros cambios que afectan a los dos puntos.</p>
+          <p>La autocorrelación reduce el número efectivo de muestras con el factor (1 − ρ)/(1 + ρ), donde ρ es la correlación al intervalo de muestreo; por eso pasar de mensual a semanal mejora poco. Es la misma corrección que usa la guía de cambio mínimo detectable de Tetra Tech para la EPA. La simulación Monte Carlo genera series con estacionalidad senoidal de fase aleatoria y ruido autorregresivo, y cuenta en qué fracción de 500 réplicas la prueba detecta el cambio.</p>
+          <p>En el ejemplo de serie, la estacionalidad baja las concentraciones en agosto, por dilución en lluvias, y las sube en estiaje; es un supuesto razonable para un cauce dominado por aguas negras, pero hay que confirmarlo. Los coeficientes de variación por parámetro y las medianas son supuestos de partida, no datos del Río Verde. Con los primeros seis a doce meses de línea base conviene recalcular el CV real del sitio y la correlación entre puntos, y volver a correr el tablero: es lo que más mueve el resultado.</p>
+          <p>En el Río Verde la seguridad manda: no se muestrea durante lluvia intensa ni con el cauce crecido, se coordina cada campaña con OAPAS y Protección Civil, y el personal usa equipo para contacto con aguas residuales. Las campañas de lluvias se programan en días sin pronóstico de tormenta, en las horas posteriores a un evento.</p>
+          <p>Con muestreo puntual mensual se pierden las avenidas y los eventos cortos de descarga. Si el objetivo incluye cargas contaminantes o picos, el plan necesita aforo y muestreo compuesto o sondas en línea, que este escenario no incluye.</p>
+        </div>
+        <h3 style="margin-top:18px">Fuentes</h3>
+        <ol class="src">
+          <li>Services Inter Lab de México, S.A. de C.V. Lista de precios, 15 de enero de 2025. <a href="https://platiica.economia.gob.mx/wp-content/uploads/sites/5/Tarifas/INTERLAB.pdf" target="_blank" rel="noopener">Catálogo de evaluación de la conformidad, Secretaría de Economía</a></li>
+          <li>Grupo Microanálisis, S.A. de C.V. Precios y tarifas 2023. <a href="https://platiica.economia.gob.mx/wp-content/uploads/sites/5/Tarifas/LGM931-1.PDF" target="_blank" rel="noopener">Catálogo de evaluación de la conformidad</a></li>
+          <li>Lista de precios 2023, registro LAE160. <a href="https://platiica.economia.gob.mx/wp-content/uploads/sites/5/Tarifas/LAE160-1.PDF" target="_blank" rel="noopener">Catálogo de evaluación de la conformidad</a></li>
+          <li>Laboratorio Ambiental Sigma, listado de precios 2023. <a href="https://platiica.economia.gob.mx/evaluacion-de-la-conformidad/wp-content/uploads/sites/5/Tarifas/LAS010-1.PDF" target="_blank" rel="noopener">Catálogo de evaluación de la conformidad</a></li>
+          <li>Criterios de CONAGUA para valorar la calidad del agua de cuerpos superficiales, reproducidos en el reporte de calidad del agua, Región Centro, 4.º trimestre de 2025. <a href="https://tabasco.gob.mx/sites/default/files/users/usersedenertabasco/REG%20CENTRO%204TO%20TRIMESTRE%202025.pdf" target="_blank" rel="noopener">Gobierno de Tabasco</a>; escala de DBO5 en <a href="https://apps1.semarnat.gob.mx:8443/dgeia/clave20_cd/archivos/pdf/clave_12_met.pdf" target="_blank" rel="noopener">SEMARNAT, nota metodológica (CONAGUA, 2011)</a></li>
+          <li>Gobierno Municipal de Naucalpan. <a href="https://naucalpan.gob.mx/supervisa-alcalde-isaac-montoya-zonas-afectadas-en-rio-verde-tras-lluvias-atipicas-la-presa-de-los-cuartos-no-se-desbordo/" target="_blank" rel="noopener">Supervisa alcalde zonas afectadas en Río Verde</a> (22 jun 2025); <a href="https://naucalpan.gob.mx/avanza-proyecto-de-saneamiento-del-rio-hondo-se-invertiran-recursos-por-70-mdp/" target="_blank" rel="noopener">Avanza proyecto de saneamiento del Río Hondo</a> (20 nov 2025); <a href="https://naucalpan.gob.mx/avances-estrategicos-en-naucalpan-para-el-rescate-y-saneamiento-del-rio-hondo/" target="_blank" rel="noopener">Avances estratégicos para el saneamiento del Río Hondo</a> (30 mar 2026)</li>
+          <li>El Universal. <a href="https://www.eluniversaledomex.com.mx/valle-de-mexico/naucalpan-el-rio-verde-lleno-de-heces-analisis-confirman-contaminacion-fecal/" target="_blank" rel="noopener">Análisis confirman contaminación fecal en el Río Verde</a> (26 jun 2025); <a href="https://www.eluniversal.com.mx/metropoli/haran-nuevo-analisis-a-espuma-de-rio-verde-de-naucalpan-para-descartar-presencia-de-metales-lo-realizara-un-laboratorio-particular/" target="_blank" rel="noopener">Nuevo análisis a la espuma del Río Verde</a> (2025)</li>
+          <li>N+. <a href="https://www.nmas.com.mx/estado-de-mexico/rio-verde-sera-estudiado-tras-desfogue-presa-los-cuartos-en-naucalpan-edomex/" target="_blank" rel="noopener">Estudiarán Río Verde tras desfogue de la Presa Los Cuartos</a> (23 jun 2025); TV Azteca, <a href="https://www.tvazteca.com/aztecanoticias/el-rio-verde-vuelve-a-golpear-vecinos-naucalpan-sufren-inundaciones-historicas" target="_blank" rel="noopener">El río Verde vuelve a golpear</a> (23 jun 2025)</li>
+          <li>Harcum, J. y Dressing, S. Minimum Detectable Change and Power Analysis. Tetra Tech para US EPA. <a href="https://archive.epa.gov/region5/agriculture/web/pdf/nutrient-webinar-mdc-20150428.pdf" target="_blank" rel="noopener">archive.epa.gov</a></li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</div>
+<script>
+/* Modelo estadístico y de costos del simulador de monitoreo de río.
+   Funciones puras: se prueban con node y se incrustan tal cual en la página. */
+
+// ---------- distribuciones ----------
+function normCdf(x) {
+  // Abramowitz-Stegun 7.1.26 sobre erf
+  const s = x < 0 ? -1 : 1, z = Math.abs(x) / Math.SQRT2;
+  const t = 1 / (1 + 0.3275911 * z);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-z * z);
+  return 0.5 * (1 + s * y);
+}
+function normInv(p) {
+  // Acklam
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  const pl = 0.02425;
+  let q, r;
+  if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1 - pl) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  q = p - 0.5; r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5]) * q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function tInv(p, df) {
+  // expansión de Cornish-Fisher (Abramowitz-Stegun 26.7.5); suficiente para df >= 2
+  const z = normInv(p), z2 = z * z;
+  df = Math.max(df, 1);
+  return z + (z2 * z + z) / (4 * df)
+    + (5 * z2 * z2 * z + 16 * z2 * z + 3 * z) / (96 * df * df)
+    + (3 * z2 * z2 * z2 * z + 19 * z2 * z2 * z + 17 * z2 * z - 15 * z) / (384 * df * df * df);
+}
+
+// ---------- generador reproducible ----------
+function rng(seed) {
+  let s = seed >>> 0 || 1;
+  const u = () => { s += 0x6D2B79F5; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  let spare = null;
+  const n = () => { if (spare !== null) { const v = spare; spare = null; return v; }
+    let x, y, r; do { x = 2 * u() - 1; y = 2 * u() - 1; r = x * x + y * y; } while (r >= 1 || r === 0);
+    const k = Math.sqrt(-2 * Math.log(r) / r); spare = y * k; return x * k; };
+  return { u, n };
+}
+
+// ---------- supuestos derivados ----------
+// p: { design:'ba'|'baci', perMonth, cv, change, r, rhoM, seasPct, alpha, power }
+function derived(p) {
+  const sigma2 = Math.log(1 + p.cv * p.cv);
+  const A = Math.log(1 + p.seasPct / 100);           // amplitud estacional en escala logarítmica
+  const dt = 1 / p.perMonth;                          // meses entre campañas
+  const rho = Math.pow(p.rhoM, dt);                   // autocorrelación al intervalo de muestreo
+  const vy = p.design === 'baci' ? 2 * sigma2 * (1 - p.r) : sigma2 + A * A / 2;
+  const effPerSample = (1 - rho) / (1 + rho);
+  const delta = Math.log(1 - p.change);
+  return { sigma2, A, dt, rho, vy, effPerSample, delta };
+}
+
+// Potencia analítica con periodos de B y P meses
+function powerAnalytic(p, B, P) {
+  const d = derived(p);
+  const nB = Math.max(1, Math.round(B * p.perMonth)) * d.effPerSample;
+  const nP = Math.max(1, Math.round(P * p.perMonth)) * d.effPerSample;
+  const se = Math.sqrt(d.vy * (1 / nB + 1 / nP));
+  const df = Math.max(1, nB + nP - 2);
+  const tc = tInv(1 - p.alpha / 2, df);
+  const ncp = Math.abs(d.delta) / se;
+  return Math.min(1, normCdf(ncp - tc) + normCdf(-ncp - tc));
+}
+
+// Meses mínimos por periodo (periodos iguales) para alcanzar la potencia objetivo
+function minMonths(p, maxM = 240) {
+  for (let m = 2; m <= maxM; m++) if (powerAnalytic(p, m, m) >= p.power) return m;
+  return null;
+}
+
+// Cambio mínimo detectable (%) con periodos iguales de m meses
+function mdc(p, m) {
+  const d = derived(p);
+  const n = Math.round(m * p.perMonth) * d.effPerSample;
+  const se = Math.sqrt(d.vy * 2 / n);
+  const k = tInv(1 - p.alpha / 2, Math.max(1, 2 * n - 2)) + normInv(p.power);
+  return 100 * (1 - Math.exp(-k * se));
+}
+
+// Precisión de la mediana de línea base (± %) con m meses en un punto
+function baselinePrecision(p, m) {
+  const d = derived(p);
+  const n = Math.max(2, Math.round(m * p.perMonth) * d.effPerSample);
+  const hw = tInv(0.975, Math.max(1, n - 1)) * Math.sqrt(d.sigma2 + d.A * d.A / 2) / Math.sqrt(n);
+  return { up: 100 * (Math.exp(hw) - 1), down: 100 * (1 - Math.exp(-hw)) };
+}
+
+// Serie sintética: ln C = ln(mediana) + estacionalidad + AR(1); impacto correlacionado r con el control
+function simulateSeries(p, B, P, seed, med) {
+  const d = derived(p), g = rng(seed);
+  const nB = Math.round(B * p.perMonth), nP = Math.round(P * p.perMonth), N = nB + nP;
+  const sd = Math.sqrt(d.sigma2), inn = Math.sqrt(1 - d.rho * d.rho) * sd;
+  const phase0 = g.u() * 2 * Math.PI, phase = p.phase === undefined ? phase0 : p.phase;
+  let z1 = g.n() * sd, z2 = g.n() * sd;
+  const out = [];
+  for (let i = 0; i < N; i++) {
+    if (i > 0) { z1 = d.rho * z1 + inn * g.n(); z2 = d.rho * z2 + inn * g.n(); }
+    const t = i * d.dt, tt = t + (i >= nB ? (p.gap || 0) : 0), seas = d.A * Math.sin(2 * Math.PI * tt / 12 + phase);
+    const ctrl = seas + z1;
+    const imp = seas + p.r * z1 + Math.sqrt(1 - p.r * p.r) * z2 + (i >= nB ? d.delta : 0);
+    out.push({ t, after: i >= nB, ctrl, imp,
+      cCtrl: med ? med.up * Math.exp(ctrl) : null, cImp: med ? med.down * Math.exp(imp) : null });
+  }
+  return out;
+}
+
+// Potencia por Monte Carlo: prueba t sobre logaritmos con corrección por autocorrelación
+function powerMonteCarlo(p, B, P, reps = 1000, seed = 7, deltaOverride) {
+  const d = derived(p);
+  const q = deltaOverride === undefined ? p : Object.assign({}, p, { change: 1 - Math.exp(deltaOverride) });
+  let hits = 0;
+  const nB = Math.round(B * p.perMonth), nP = Math.round(P * p.perMonth);
+  const nBe = nB * d.effPerSample, nPe = nP * d.effPerSample;
+  const df = Math.max(1, nBe + nPe - 2);
+  const tc = tInv(1 - p.alpha / 2, df);
+  const infl = (1 + d.rho) / (1 - d.rho);
+  for (let k = 0; k < reps; k++) {
+    const s = simulateSeries(q, B, P, seed * 100003 + k);
+    let sb = 0, sa = 0;
+    const yb = [], ya = [];
+    for (const o of s) { const y = p.design === 'baci' ? o.imp - o.ctrl : o.imp; if (o.after) ya.push(y); else yb.push(y); }
+    const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+    const mb = mean(yb), ma = mean(ya);
+    for (const y of yb) sb += (y - mb) ** 2;
+    for (const y of ya) sa += (y - ma) ** 2;
+    const sp2 = (sb + sa) / Math.max(1, nB + nP - 2);
+    const se = Math.sqrt(sp2 * infl * (1 / nB + 1 / nP));
+    if (Math.abs((ma - mb) / se) > tc) hits++;
+  }
+  return hits / reps;
+}
+
+// ---------- costos ----------
+// c: { points, perMonth, monthsB, monthsW, monthsP, monitorWorks, params:[{on,price}], qaPct,
+//      samplingMode:'point'|'day', samplingPoint, samplingDay, pointsPerDay, travel, flowOn, flowPrice,
+//      iva, rate, designHours, reportHours, finalHours }
+// meses de lluvia en el Valle de México en que caen las campañas extraordinarias, según cuántas por año
+const RAIN_PLAN = { 0: [], 1: [8], 2: [7, 9], 3: [6, 8, 9], 4: [6, 7, 8, 9] };
+function costs(c) {
+  const months = c.monthsB + (c.monitorWorks ? c.monthsW : 0) + c.monthsP;
+  const totalSpan = c.monthsB + c.monthsW + c.monthsP;
+  const paramSum = c.params.filter(x => x.on).reduce((s, x) => s + (+x.price || 0), 0);
+  const lab = c.points * paramSum * (1 + c.qaPct / 100);
+  const sampling = c.samplingMode === 'day' ? Math.ceil(c.points / Math.max(1, c.pointsPerDay)) * c.samplingDay : c.points * c.samplingPoint;
+  const flow = c.flowOn ? c.points * c.flowPrice : 0;
+  const ivaF = c.iva ? 1.16 : 1;
+  const perCampaign = { lab: lab * ivaF, sampling: (sampling + flow) * ivaF, travel: c.travel * ivaF };
+  perCampaign.total = perCampaign.lab + perCampaign.sampling + perCampaign.travel;
+
+  // calendario mensual: campañas en cada mes monitoreado; informes trimestrales; diseño en el mes 0
+  const timeline = [];
+  let acc = 0, campaigns = 0, extraCampaigns = 0;
+  const quarters = Math.ceil(totalSpan / 3);
+  for (let m = 0; m <= totalSpan; m++) {
+    const row = { m, lab: 0, sampling: 0, travel: 0, eng: 0, phase: m === 0 ? 'arranque' : (m <= c.monthsB ? 'base' : (m <= c.monthsB + c.monthsW ? 'obra' : 'seguimiento')) };
+    if (m === 0) row.eng += c.designHours * c.rate;
+    const monitored = m > 0 && (row.phase !== 'obra' || c.monitorWorks);
+    // mes calendario (1-12) del mes m del programa; el mes 0 es el arranque
+    row.cal = ((((c.startMonth || 1) - 2 + m) % 12) + 12) % 12 + 1;
+    row.extra = monitored && (RAIN_PLAN[c.extraPerYear || 0] || []).includes(row.cal) ? 1 : 0;
+    if (monitored) {
+      const k = c.perMonth + row.extra;
+      row.lab = perCampaign.lab * k; row.sampling = perCampaign.sampling * k; row.travel = perCampaign.travel * k;
+      campaigns += c.perMonth; extraCampaigns += row.extra;
+    }
+    if (m > 0 && m % 3 === 0 && m < totalSpan) row.eng += c.reportHours * c.rate;
+    if (m === totalSpan && m > 0) row.eng += c.finalHours * c.rate;
+    row.total = row.lab + row.sampling + row.travel + row.eng;
+    acc += row.total; row.acc = acc;
+    timeline.push(row);
+  }
+  const sum = k => timeline.reduce((s, r) => s + r[k], 0);
+  return { months, totalSpan, campaigns: Math.round(campaigns), extraCampaigns, perCampaign, paramSum,
+    totals: { lab: sum('lab'), sampling: sum('sampling'), travel: sum('travel'), eng: sum('eng'), total: acc },
+    reports: Math.max(0, quarters - 1), timeline };
+}
+
+if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rng, derived, powerAnalytic, minMonths, mdc, baselinePrecision, simulateSeries, powerMonteCarlo, costs };
+
+(function () {
+  const $ = id => document.getElementById(id);
+  const med3 = a => { const s = a.slice().sort((x, y) => x - y); const n = s.length; return n === 0 ? 0 : (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2); };
+  const mxn = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
+  const mxn2 = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const num = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 1 });
+  const fmtBig = v => v >= 1e6 ? '$' + (v / 1e6).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M' : mxn.format(v);
+  const pct = v => Math.round(v * 100) + ' %';
+
+  // ---------- catálogo de parámetros con precios publicados (MXN por muestra, sin IVA) ----------
+  const PARAMS = [
+    { id: 'dbo', name: 'DBO5', norm: 'NMX-AA-028-SCFI-2021', p: { il: 676.17, gm: 525, lf: 442 }, on: true },
+    { id: 'dqo', name: 'DQO', norm: 'NMX-AA-030-SCFI', p: { il: 1357.43, gm: 630, lf: 316 }, on: true },
+    { id: 'sst', name: 'Sólidos suspendidos totales', norm: 'NMX-AA-034-SCFI-2015', p: { gm: 515, lf: 241 }, on: true },
+    { id: 'cf', name: 'Coliformes fecales', norm: 'Standard Methods 9223 B / NOM-244-SSA1-2008', p: { gm: 730, lf: 422 }, on: true },
+    { id: 'ec', name: 'E. coli', norm: 'NMX-AA-042-SCFI-2015', p: { gm: 630 }, on: true },
+    { id: 'nt', name: 'Nitrógeno total (Kjeldahl + nitratos + nitritos)', norm: 'NMX-AA-026, 079 y 099', p: { il: 1640.45, gm: 2130 }, on: true, note: 'Suma de tres determinaciones en cada lista' },
+    { id: 'pt', name: 'Fósforo total', norm: 'NMX-AA-029-SCFI-2001', p: { il: 382.34, gm: 690, lf: 330 }, on: true },
+    { id: 'od', name: 'Oxígeno disuelto', norm: 'NMX-AA-012-SCFI-2001', p: { gm: 490 }, on: true },
+    { id: 'ph', name: 'pH', norm: 'NMX-AA-008-SCFI-2016', p: { il: 127.20, gm: 150 }, on: true },
+    { id: 'temp', name: 'Temperatura', norm: 'NMX-AA-007-SCFI-2013', p: { il: 102.82, gm: 170 }, on: true },
+    { id: 'ce', name: 'Conductividad eléctrica', norm: 'NMX-AA-093-SCFI-2018', p: { il: 315.88, gm: 340 }, on: true },
+    { id: 'gya', name: 'Grasas y aceites', norm: 'NMX-AA-005-SCFI-2013', p: { il: 950.82, gm: 870 }, on: true },
+    { id: 'saam', name: 'Detergentes (sustancias activas al azul de metileno)', norm: 'NMX-AA-039-SCFI-2001', p: { gm: 800 }, on: true, note: 'Mide lo que formó la espuma de junio de 2025' },
+    { id: 'ssed', name: 'Sólidos sedimentables', norm: 'NMX-AA-004-SCFI-2013', p: { gm: 410 }, on: false },
+    { id: 'color', name: 'Color verdadero', norm: 'NMX-AA-017-SCFI-2021', p: { gm: 500 }, on: false },
+    { id: 'hh', name: 'Huevos de helminto', norm: 'NMX-AA-113-SCFI-2012', p: { gm: 2220 }, on: false },
+    { id: 'met', name: 'Metales (As, Cd, Cu, Cr, Hg, Ni, Pb, Zn)', norm: 'NMX-AA-051-SCFI-2016 / EPA 6010C', p: { il: 4429.31, gm: 3645 }, on: false, note: 'Microanálisis: $775 el primer metal y $410 cada adicional. Conviene al menos en un par de campañas para confirmar que no hay aporte industrial' },
+    { id: 'cn', name: 'Cianuros totales', norm: 'NMX-AA-058-SCFI-2001', p: { il: 625.71, gm: 830 }, on: false },
+    { id: 'tox', name: 'Toxicidad aguda', norm: 'Vibrio fischeri', p: {}, on: false, quote: true },
+    { id: 'ent', name: 'Enterococos fecales', norm: '', p: {}, on: false, quote: true }
+  ];
+  PARAMS.forEach(x => { x.price = Math.round(med3(Object.values(x.p)) * 100) / 100; });
+
+  const TARGETS = {
+    dbo: { name: 'DBO5', cv: 0.7, down: 180, up: 60, unit: 'mg/L', bands: [3, 6, 30, 120] },
+    dqo: { name: 'DQO', cv: 0.6, down: 420, up: 150, unit: 'mg/L', bands: [10, 20, 40, 200] },
+    sst: { name: 'sólidos suspendidos totales', cv: 1.0, down: 250, up: 90, unit: 'mg/L', bands: [25, 75, 150, 400] },
+    cf: { name: 'coliformes fecales', cv: 1.8, down: 1e7, up: 1e6, unit: 'NMP/100 mL', bands: [100, 200, 1000, 10000] },
+    nt: { name: 'nitrógeno total', cv: 0.5, down: 45, up: 15, unit: 'mg/L', bands: null },
+    pt: { name: 'fósforo total', cv: 0.6, down: 7, up: 2.5, unit: 'mg/L', bands: null }
+  };
+  const BAND_NAMES = ['Excelente', 'Buena', 'Aceptable', 'Contaminada', 'Fuertemente contaminada'];
+  const ROLES = ['Desfogue de la Presa Los Cuartos (control)', 'Nueva San Rafael y San Rafael Chamapa (descargas domésticas)', 'Puente vehicular de Altamira (impacto, zona de desbordes)', 'Último tramo antes del cauce receptor (efecto acumulado)', 'Vaso de la Presa Los Cuartos'];
+  const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const MES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  let START = { y: 2026, m: 11 };
+  const calOf = mth => { const t = START.y * 12 + (START.m - 1) + mth - 1; return { y: Math.floor(t / 12), m: t % 12 + 1 }; };
+  const calShort = mth => { const c = calOf(mth); return MES[c.m - 1] + ' ' + String(c.y).slice(2); };
+  const calLong = mth => { const c = calOf(mth); return MES_L[c.m - 1] + ' de ' + c.y; };
+  const FREQ_NAME = { '0.3333333333': 'trimestral', '0.5': 'bimestral', '1': 'mensual', '2': 'quincenal', '4': 'semanal' };
+
+  let seed = 20261008;
+
+  // ---------- lectura de supuestos ----------
+  function read() {
+    const v = id => parseFloat($(id).value);
+    const p = {
+      design: $('design').value, perMonth: v('freq'), cv: Math.max(0.05, v('cv') || 0.6), change: v('change') / 100,
+      r: v('r'), rhoM: v('rho'), seasPct: v('seas'), alpha: v('alpha'), power: v('power')
+    };
+    const c = {
+      points: v('points'), perMonth: p.perMonth,
+      monthsB: Math.max(1, Math.round(v('monthsB') || 1)), monthsW: Math.max(0, Math.round(v('monthsW') || 0)), monthsP: Math.max(1, Math.round(v('monthsP') || 1)),
+      monitorWorks: $('monitorWorks').checked, params: PARAMS, qaPct: v('qaPct'), startMonth: START.m, extraPerYear: v('extraRain') || 0,
+      samplingMode: $('samplingMode').value, samplingPoint: v('samplingPoint') || 0, samplingDay: v('samplingDay') || 0, pointsPerDay: v('pointsPerDay') || 1,
+      travel: v('travel') || 0, flowOn: $('flowOn').checked, flowPrice: v('flowPrice') || 0, iva: $('iva').checked,
+      rate: v('rate') || 0, designHours: v('designHours') || 0, reportHours: v('reportHours') || 0, finalHours: v('finalHours') || 0
+    };
+    return { p, c, target: TARGETS[$('target').value], med: { down: v('medDown') || 1, up: v('medUp') || 1 } };
+  }
+
+  function recommended(p) {
+    const m = minMonths(p);
+    let rec = Math.max(m || 120, 12);
+    rec = p.design === 'ba' ? Math.ceil(rec / 12) * 12 : Math.ceil(rec / 3) * 3;
+    return { m, rec };
+  }
+
+  // ---------- SVG ----------
+  function frame(el, h) {
+    const w = Math.max(300, el.clientWidth || 600);
+    return { w, h };
+  }
+  function niceTicks(lo, hi, n) {
+    const span = hi - lo, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+    const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => span / s <= n) || 10 * mag;
+    const out = []; for (let t = Math.ceil(lo / step) * step; t <= hi + 1e-9; t += step) out.push(+t.toFixed(10));
+    return out;
+  }
+  function tipShow(el, x, y, html) { const t = el.querySelector('.tip'); t.innerHTML = html; t.style.left = x + 'px'; t.style.top = y + 'px'; t.classList.add('on'); }
+  function tipHide(el) { el.querySelector('.tip').classList.remove('on'); }
+  function mount(el, svg) { const tip = el.querySelector('.tip'); el.innerHTML = svg; el.appendChild(tip); }
+
+  // ---------- gráfica de potencia ----------
+  let mcPoints = [];
+  function drawPower(S, minM) {
+    const el = $('powerChart'), { w, h } = frame(el, 300);
+    const m = { l: 44, r: 14, t: 12, b: 38 };
+    const xmax = Math.min(120, Math.max(36, Math.ceil(((minM || 60) + 12) / 6) * 6));
+    const X = v => m.l + (v / xmax) * (w - m.l - m.r), Y = v => m.t + (1 - v) * (h - m.t - m.b);
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Potencia estadística según meses por periodo">`;
+    [0, 0.2, 0.4, 0.6, 0.8, 1].forEach(v => { s += `<line class="grid" x1="${m.l}" x2="${w - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v * 100}%</text>`; });
+    niceTicks(0, xmax, 8).forEach(v => { s += `<text x="${X(v)}" y="${h - m.b + 18}" text-anchor="middle">${v}</text>`; });
+    s += `<text x="${(m.l + w - m.r) / 2}" y="${h - 4}" text-anchor="middle">Meses de muestreo en cada periodo</text>`;
+    s += `<line class="ax" x1="${m.l}" x2="${w - m.r}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+    s += `<line x1="${m.l}" x2="${w - m.r}" y1="${Y(S.p.power)}" y2="${Y(S.p.power)}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+    const pts = []; for (let mo = 1; mo <= xmax; mo++) pts.push([mo, powerAnalytic(S.p, mo, mo)]);
+    const path = pts.map((q, i) => (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ',' + Y(q[1]).toFixed(1)).join('');
+    s += `<path d="${path} L${X(xmax)},${Y(0)} L${X(1)},${Y(0)} Z" fill="var(--s1)" opacity="0.08"/>`;
+    s += `<path d="${path}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>`;
+    if (minM && minM <= xmax) {
+      s += `<line x1="${X(minM)}" x2="${X(minM)}" y1="${Y(S.p.power)}" y2="${Y(0)}" stroke="var(--ink-2)" stroke-width="1" stroke-dasharray="2 3"/>`;
+      s += `<circle cx="${X(minM)}" cy="${Y(powerAnalytic(S.p, minM, minM))}" r="5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>`;
+      s += `<text x="${X(minM) - 8}" y="${Y(S.p.power) - 10}" text-anchor="end" style="fill:var(--ink);font-weight:700">${minM} meses</text>`;
+    }
+    mcPoints.filter(q => q[0] <= xmax).forEach(q => { s += `<circle cx="${X(q[0])}" cy="${Y(q[1])}" r="4.5" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"/>`; });
+    s += `<line id="pwX" x1="0" x2="0" y1="${m.t}" y2="${Y(0)}" stroke="var(--ink-2)" stroke-width="1" opacity="0"/>`;
+    s += `<rect x="${m.l}" y="${m.t}" width="${w - m.l - m.r}" height="${h - m.t - m.b}" fill="transparent" id="pwHit"/></svg>`;
+    mount(el, s);
+    const hit = el.querySelector('#pwHit'), cross = el.querySelector('#pwX');
+    const move = ev => {
+      const rect = el.getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+      const mo = Math.max(1, Math.min(xmax, Math.round((px - m.l) / (w - m.l - m.r) * xmax)));
+      const pa = powerAnalytic(S.p, mo, mo), mc = mcPoints.find(q => q[0] === mo);
+      cross.setAttribute('x1', X(mo)); cross.setAttribute('x2', X(mo)); cross.setAttribute('opacity', 0.6);
+      tipShow(el, X(mo), Y(pa), `<b>${mo} meses por periodo</b><br>${Math.round(mo * S.p.perMonth)} campañas antes y ${Math.round(mo * S.p.perMonth)} después<br>Analítico: ${pct(pa)}${mc ? `<br>Monte Carlo: ${pct(mc[1])}` : ''}`);
+    };
+    hit.addEventListener('mousemove', move); hit.addEventListener('touchstart', move, { passive: true });
+    hit.addEventListener('mouseleave', () => { tipHide(el); cross.setAttribute('opacity', 0); });
+  }
+
+  let mcTimer = null, mcToken = 0;
+  function scheduleMC(S, minM) {
+    clearTimeout(mcTimer); mcPoints = []; const token = ++mcToken;
+    $('mcStatus').textContent = 'Simulando…';
+    const xmax = Math.min(120, Math.max(36, Math.ceil(((minM || 60) + 12) / 6) * 6));
+    const step = xmax > 60 ? 12 : 6, months = []; for (let mo = step; mo <= xmax; mo += step) months.push(mo);
+    if (minM && minM <= xmax && !months.includes(minM)) months.push(minM);
+    months.sort((a, b) => a - b);
+    let i = 0;
+    const work = () => {
+      if (token !== mcToken) return;
+      const mo = months[i];
+      mcPoints.push([mo, powerMonteCarlo(S.p, mo, mo, 500, 7)]);
+      i++;
+      drawPower(S, minM);
+      if (i < months.length) mcTimer = setTimeout(work, 0); else $('mcStatus').textContent = '500 réplicas por duración';
+    };
+    mcTimer = setTimeout(work, 200);
+  }
+
+  // ---------- serie simulada ----------
+  function drawSeries(S) {
+    const el = $('seriesChart'), { w, h } = frame(el, 330);
+    const m = { l: 56, r: 14, t: 14, b: 38 };
+    const B = S.c.monthsB, W = S.c.monthsW, P = S.c.monthsP;
+    const c0 = calOf(1).m, tAug = (8 - c0 + 12) % 12;
+    const ser = simulateSeries(Object.assign({}, S.p, { gap: W, phase: 1.5 * Math.PI - 2 * Math.PI * tAug / 12 }), B, P, seed, S.med);
+    const pts = ser.map(o => ({ x: o.after ? o.t + W : o.t, after: o.after, up: o.cCtrl, down: o.cImp }));
+    const span = B + W + P;
+    let lo = Infinity, hi = -Infinity;
+    pts.forEach(q => { lo = Math.min(lo, q.up, q.down); hi = Math.max(hi, q.up, q.down); });
+    lo = Math.pow(10, Math.floor(Math.log10(lo) * 2) / 2); hi = Math.pow(10, Math.ceil(Math.log10(hi) * 2) / 2);
+    const L = v => Math.log10(v);
+    const X = v => m.l + (v / span) * (w - m.l - m.r), Y = v => m.t + (1 - (L(v) - L(lo)) / (L(hi) - L(lo))) * (h - m.t - m.b);
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Serie simulada de concentraciones aguas arriba y aguas abajo">`;
+    // bandas de CONAGUA
+    if (S.target.bands) {
+      const edges = [0].concat(S.target.bands, [Infinity]);
+      for (let k = 0; k < 5; k++) {
+        const a = Math.max(edges[k], lo), b = Math.min(edges[k + 1], hi);
+        if (b <= a) continue;
+        if (k % 2 === 1) s += `<rect x="${m.l}" y="${Y(b)}" width="${w - m.l - m.r}" height="${Y(a) - Y(b)}" fill="var(--band)"/>`;
+        const yMid = (Y(a) + Y(b)) / 2;
+        if (Y(a) - Y(b) > 14) s += `<text x="${w - m.r - 6}" y="${yMid + 4}" text-anchor="end" style="fill:var(--muted);font-size:11px">${BAND_NAMES[k]}</text>`;
+      }
+      S.target.bands.forEach(b => { if (b > lo && b < hi) s += `<line x1="${m.l}" x2="${w - m.r}" y1="${Y(b)}" y2="${Y(b)}" stroke="var(--line)"/>`; });
+    }
+    // periodos
+    s += `<rect x="${X(B)}" y="${m.t}" width="${X(B + W) - X(B)}" height="${h - m.t - m.b}" fill="var(--surface-2)"/>`;
+    if (W > 0 && X(B + W) - X(B) > 30) s += `<text x="${(X(B) + X(B + W)) / 2}" y="${m.t + 14}" text-anchor="middle" style="font-weight:600">Obra</text>`;
+    s += `<rect x="${X(B + W)}" y="${m.t}" width="${X(span) - X(B + W)}" height="${h - m.t - m.b}" fill="var(--after)"/>`;
+    // ejes
+    for (let e = Math.ceil(L(lo)); e <= Math.floor(L(hi)); e++) {
+      const v = Math.pow(10, e);
+      s += `<line class="grid" x1="${m.l}" x2="${w - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${num.format(v)}</text>`;
+    }
+    for (let v = 0; v <= span; v += span > 36 ? 6 : 3) s += `<text x="${X(v)}" y="${h - m.b + 18}" text-anchor="middle">${calShort(v + 1)}</text>`;
+    s += `<text x="${(m.l + w - m.r) / 2}" y="${h - 4}" text-anchor="middle">${S.target.name} en ${S.target.unit}</text>`;
+    const line = (key, color) => {
+      const seg = a => a.map((q, i) => (i ? 'L' : 'M') + X(q.x).toFixed(1) + ',' + Y(q[key]).toFixed(1)).join('');
+      const b = pts.filter(q => !q.after), a = pts.filter(q => q.after);
+      let o = `<path d="${seg(b)}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/><path d="${seg(a)}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`;
+      if (pts.length <= 120) pts.forEach(q => { o += `<circle cx="${X(q.x)}" cy="${Y(q[key])}" r="3.2" fill="${color}" stroke="var(--surface)" stroke-width="1.5"/>`; });
+      return o;
+    };
+    s += line('up', 'var(--s2)') + line('down', 'var(--s3)');
+    // medianas por periodo del punto de impacto
+    const gm = a => Math.exp(a.reduce((x, y) => x + Math.log(y), 0) / a.length);
+    const mb = gm(pts.filter(q => !q.after).map(q => q.down)), ma = gm(pts.filter(q => q.after).map(q => q.down));
+    s += `<line x1="${X(0)}" x2="${X(B)}" y1="${Y(mb)}" y2="${Y(mb)}" stroke="var(--s3)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+    s += `<line x1="${X(B + W)}" x2="${X(span)}" y1="${Y(ma)}" y2="${Y(ma)}" stroke="var(--s3)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+    s += `<line class="ax" x1="${m.l}" x2="${w - m.r}" y1="${h - m.b}" y2="${h - m.b}"/>`;
+    s += `<line id="srX" x1="0" x2="0" y1="${m.t}" y2="${h - m.b}" stroke="var(--ink-2)" opacity="0"/>`;
+    s += `<rect id="srHit" x="${m.l}" y="${m.t}" width="${w - m.l - m.r}" height="${h - m.t - m.b}" fill="transparent"/></svg>`;
+    mount(el, s);
+    const hit = el.querySelector('#srHit'), cross = el.querySelector('#srX');
+    const move = ev => {
+      const rect = el.getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+      const xv = (px - m.l) / (w - m.l - m.r) * span;
+      let best = pts[0]; pts.forEach(q => { if (Math.abs(q.x - xv) < Math.abs(best.x - xv)) best = q; });
+      cross.setAttribute('x1', X(best.x)); cross.setAttribute('x2', X(best.x)); cross.setAttribute('opacity', 0.5);
+      const f = v => v >= 100 ? num.format(Math.round(v)) : num.format(v);
+      tipShow(el, X(best.x), Y(Math.max(best.up, best.down)), `<b>${calLong(Math.round(best.x) + 1)}</b> · ${best.after ? 'después' : 'antes'}<br>Desfogue de la presa: ${f(best.up)} ${S.target.unit}<br>Puente de Altamira: ${f(best.down)} ${S.target.unit}`);
+    };
+    hit.addEventListener('mousemove', move); hit.addEventListener('touchstart', move, { passive: true });
+    hit.addEventListener('mouseleave', () => { tipHide(el); cross.setAttribute('opacity', 0); });
+    const red = 100 * (1 - ma / mb);
+    $('serieSub').textContent = `Una serie simulada con los supuestos actuales, en escala logarítmica${S.target.bands ? ', sobre las bandas de clasificación de CONAGUA' : ''}. Las líneas punteadas son la media geométrica aguas abajo en cada periodo: en esta realización bajó ${num.format(Math.round(red))} % contra el ${Math.round(S.p.change * 100)} % real del modelo. Así de ruidosa es una serie de muestras puntuales.`;
+  }
+
+  // ---------- gráfica de costos ----------
+  function drawCost(S, C) {
+    const el = $('costChart'), { w, h } = frame(el, 240);
+    const m = { l: 64, r: 10, t: 10, b: 34 };
+    const T = C.timeline, n = T.length;
+    const max = Math.max(...T.map(r => r.total)) || 1;
+    const ticks = niceTicks(0, max * 1.05, 4), top = ticks[ticks.length - 1] || max;
+    const bw = (w - m.l - m.r) / n, X = i => m.l + i * bw, Y = v => m.t + (1 - v / top) * (h - m.t - m.b);
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gasto mensual del programa">`;
+    ticks.forEach(v => { s += `<line class="grid" x1="${m.l}" x2="${w - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v >= 1000 ? '$' + num.format(v / 1000) + ' k' : '$' + v}</text>`; });
+    const keys = [['lab', 'var(--s1)'], ['sampling', 'var(--s2)'], ['travel', 'var(--s3)'], ['eng', 'var(--s4)']];
+    const gap = bw > 6 ? 2 : 0.5;
+    T.forEach((r, i) => {
+      let base = 0;
+      keys.forEach(([k, col]) => {
+        if (r[k] <= 0) return;
+        const y0 = Y(base), y1 = Y(base + r[k]);
+        s += `<rect x="${(X(i) + gap / 2).toFixed(1)}" y="${y1.toFixed(1)}" width="${Math.max(0.5, bw - gap).toFixed(1)}" height="${Math.max(0, y0 - y1 - (base > 0 ? 1 : 0)).toFixed(1)}" fill="${col}"/>`;
+        base += r[k];
+      });
+    });
+    const every = n > 48 ? 12 : 6;
+    T.forEach((r, i) => { if (r.m % every === 0) s += `<text x="${X(i) + bw / 2}" y="${h - m.b + 16}" text-anchor="middle">${calShort(r.m)}</text>`; });
+    s += `<text x="${(m.l + w - m.r) / 2}" y="${h - 2}" text-anchor="middle">Mes del programa; el primero es el arranque del plan</text>`;
+    s += `<line class="ax" x1="${m.l}" x2="${w - m.r}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+    s += `<rect id="cHit" x="${m.l}" y="${m.t}" width="${w - m.l - m.r}" height="${h - m.t - m.b}" fill="transparent"/></svg>`;
+    mount(el, s);
+    const hit = el.querySelector('#cHit');
+    const PH = { arranque: 'Arranque', base: 'Línea base', obra: 'Obra', seguimiento: 'Seguimiento' };
+    const move = ev => {
+      const rect = el.getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+      const i = Math.max(0, Math.min(n - 1, Math.floor((px - m.l) / bw))), r = T[i];
+      tipShow(el, X(i) + bw / 2, Y(r.total), `<b>${calLong(r.m)}</b> · ${PH[r.phase]}${r.extra ? ' · con campaña de lluvias' : ''}<br>Laboratorio: ${mxn.format(r.lab)}<br>Muestreo y aforo: ${mxn.format(r.sampling)}<br>Viáticos: ${mxn.format(r.travel)}<br>Ingeniería: ${mxn.format(r.eng)}<br><b>Total: ${mxn.format(r.total)}</b> · acumulado ${fmtBig(r.acc)}`);
+    };
+    hit.addEventListener('mousemove', move); hit.addEventListener('touchstart', move, { passive: true });
+    hit.addEventListener('mouseleave', () => tipHide(el));
+  }
+
+  // ---------- tabla de componentes ----------
+  function buildComponentTable() {
+    const body = $('compBody');
+    let h = '';
+    h += `<tr class="grp"><td colspan="4">Arranque</td></tr>`;
+    h += `<tr><td>Plan de monitoreo<span class="note">Ubicación y georreferencia de puntos, accesos y permisos, contrato con laboratorio acreditado ante la EMA y aprobado por CONAGUA, protocolo de cadena de custodia</span></td><td class="num" id="uDesign"></td><td class="num" id="qDesign"></td><td class="num" id="sDesign"></td></tr>`;
+    h += `<tr class="grp"><td colspan="4">Campo, en cada campaña</td></tr>`;
+    h += `<tr><td>Muestreo de cuerpo receptor (NMX-AA-014-1980)<span class="note">Toma de muestra simple por el laboratorio, preservación y transporte en hielera</span></td><td class="num" id="uSamp"></td><td class="num" id="qSamp"></td><td class="num" id="sSamp"></td></tr>`;
+    h += `<tr id="flowRow"><td>Aforo de caudal<span class="note">Para estimar cargas contaminantes en kg/día</span></td><td class="num" id="uFlow"></td><td class="num" id="qFlow"></td><td class="num" id="sFlow"></td></tr>`;
+    h += `<tr><td>Viáticos del laboratorio</td><td class="num" id="uTrav"></td><td class="num" id="qTrav"></td><td class="num" id="sTrav"></td></tr>`;
+    h += `<tr class="grp"><td colspan="4">Laboratorio, por muestra</td></tr>`;
+    PARAMS.forEach((x, i) => {
+      h += `<tr><td><label class="check" style="margin:0"><input type="checkbox" id="pOn_${x.id}" data-i="${i}" ${x.on ? 'checked' : ''}> ${x.name}</label><span class="note">${x.norm}${x.note ? ' · ' + x.note : ''}${x.quote ? '<span class="tag">sin precio publicado, cotizar</span>' : ''}</span></td>`
+        + `<td class="num"><input type="number" id="pPr_${x.id}" data-i="${i}" min="0" step="any" value="${x.price}" aria-label="Precio de ${x.name}"></td><td class="num" id="pQ_${x.id}"></td><td class="num" id="pS_${x.id}"></td></tr>`;
+    });
+    h += `<tr><td>Duplicados y blancos de control de calidad</td><td class="num" id="uQa"></td><td class="num"></td><td class="num" id="sQa"></td></tr>`;
+    h += `<tr class="grp"><td colspan="4">Datos e informes</td></tr>`;
+    h += `<tr><td>Informes trimestrales<span class="note">Validación de resultados, base de datos y comparación contra la escala de CONAGUA</span></td><td class="num" id="uRep"></td><td class="num" id="qRep"></td><td class="num" id="sRep"></td></tr>`;
+    h += `<tr><td>Informe final con prueba estadística</td><td class="num" id="uFin"></td><td class="num">1</td><td class="num" id="sFin"></td></tr>`;
+    h += `<tr><td>Subtotal sin IVA</td><td></td><td></td><td class="num" id="sSub"></td></tr>`;
+    h += `<tr><td>IVA de servicios externos</td><td></td><td></td><td class="num" id="sIva"></td></tr>`;
+    h += `<tr class="total"><td>Total del programa</td><td></td><td></td><td class="num" id="sTot"></td></tr>`;
+    body.innerHTML = h;
+    body.addEventListener('input', ev => {
+      const i = ev.target.dataset.i; if (i === undefined) return;
+      if (ev.target.type === 'checkbox') PARAMS[i].on = ev.target.checked; else PARAMS[i].price = parseFloat(ev.target.value) || 0;
+      update(false);
+    });
+    body.addEventListener('change', ev => { const i = ev.target.dataset.i; if (i !== undefined && ev.target.type === 'checkbox') { PARAMS[i].on = ev.target.checked; update(false); } });
+  }
+
+  function fillComponentTable(S, C) {
+    const c = S.c, camp = C.campaigns + C.extraCampaigns, set = (id, t) => { $(id).textContent = t; };
+    set('uDesign', mxn.format(c.rate) + '/h'); set('qDesign', c.designHours + ' h'); set('sDesign', mxn.format(c.designHours * c.rate));
+    const days = Math.ceil(c.points / Math.max(1, c.pointsPerDay));
+    const sampNo = c.samplingMode === 'day' ? days * c.samplingDay * camp : c.points * c.samplingPoint * camp;
+    if (c.samplingMode === 'day') { set('uSamp', mxn2.format(c.samplingDay) + '/día'); set('qSamp', `${days * camp} días`); }
+    else { set('uSamp', mxn2.format(c.samplingPoint) + '/punto'); set('qSamp', `${c.points * camp} muestreos`); }
+    set('sSamp', mxn.format(sampNo));
+    $('flowRow').hidden = !c.flowOn;
+    const flowNo = c.flowOn ? c.points * c.flowPrice * camp : 0;
+    set('uFlow', mxn2.format(c.flowPrice)); set('qFlow', `${c.points * camp}`); set('sFlow', mxn.format(flowNo));
+    set('uTrav', mxn2.format(c.travel) + '/campaña'); set('qTrav', `${camp}`); set('sTrav', mxn.format(c.travel * camp));
+    let lab = 0;
+    PARAMS.forEach(x => {
+      const q = x.on ? c.points * camp : 0, sub = q * x.price; lab += sub;
+      set('pQ_' + x.id, x.on ? num.format(q) : '–'); set('pS_' + x.id, x.on ? mxn.format(sub) : '–');
+    });
+    const qa = lab * c.qaPct / 100;
+    set('uQa', c.qaPct + ' % del laboratorio'); set('sQa', mxn.format(qa));
+    set('uRep', mxn.format(c.reportHours * c.rate)); set('qRep', `${C.reports}`); set('sRep', mxn.format(C.reports * c.reportHours * c.rate));
+    set('uFin', mxn.format(c.finalHours * c.rate)); set('sFin', mxn.format(c.finalHours * c.rate));
+    const ext = sampNo + flowNo + c.travel * camp + lab + qa;
+    const eng = (c.designHours + C.reports * c.reportHours + c.finalHours) * c.rate;
+    const iva = c.iva ? ext * 0.16 : 0;
+    set('sSub', mxn.format(ext + eng)); set('sIva', mxn.format(iva)); set('sTot', mxn.format(ext + eng + iva));
+    return ext + eng + iva;
+  }
+
+  function buildPriceSources() {
+    const f = v => v === undefined ? '–' : mxn2.format(v);
+    $('priceSrcBody').innerHTML = PARAMS.map(x => `<tr><td>${x.name}</td><td class="num">${f(x.p.il)}</td><td class="num">${f(x.p.gm)}</td><td class="num">${f(x.p.lf)}</td></tr>`).join('');
+  }
+
+  // ---------- calendario ----------
+  function drawGantt(S, C) {
+    const c = S.c, span = C.totalSpan, pos = mth => (100 * mth / span).toFixed(3) + '%';
+    let h = '<div class="lane"><span>Fases</span><div class="track">';
+    h += `<div class="bar" style="left:0;width:${pos(c.monthsB)};background:var(--s2)">Línea base · ${c.monthsB} m</div>`;
+    if (c.monthsW > 0) h += `<div class="bar" style="left:${pos(c.monthsB)};width:${pos(c.monthsW)};background:var(--s3)">Obra · ${c.monthsW} m</div>`;
+    h += `<div class="bar" style="left:${pos(c.monthsB + c.monthsW)};width:${pos(c.monthsP)};background:var(--s1)">Seguimiento · ${c.monthsP} m</div>`;
+    h += '</div></div><div class="lane"><span>Campañas</span><div class="track">';
+    const dt = 1 / c.perMonth;
+    for (let t = dt; t <= span + 1e-9; t += dt) {
+      const inW = t > c.monthsB && t <= c.monthsB + c.monthsW;
+      if (inW && !c.monitorWorks) continue;
+      h += `<div class="tick" style="left:calc(${pos(t)} - 1px)"></div>`;
+    }
+    C.timeline.forEach(r => { if (r.extra) h += `<div class="tick" title="Campaña extraordinaria de lluvias, ${calLong(r.m)}" style="left:calc(${pos(r.m - 0.5)} - 1px);background:var(--s3)"></div>`; });
+    h += '</div></div><div class="lane"><span>Informes</span><div class="track">';
+    for (let q = 3; q < span; q += 3) h += `<div class="rep" style="left:${pos(q)}" title="Informe trimestral, mes ${q}"></div>`;
+    h += `<div class="rep" style="left:calc(${pos(span)} - 6px);background:var(--accent)" title="Informe final"></div>`;
+    h += '</div></div><div class="scale"><div></div><div class="ticks">';
+    const every = span > 48 ? 12 : 6;
+    for (let mth = 0; mth <= span; mth += every) h += `<span style="left:${pos(mth)}">${calShort(mth)}</span>`;
+    h += '</div></div>';
+    $('gantt').innerHTML = h;
+  }
+
+  // ---------- actualización ----------
+  let lastKey = '';
+  function update(rerunMC = true) {
+    const S = read();
+    $('pointsOut').textContent = S.c.points;
+    $('pointsList').innerHTML = ROLES.slice(0, S.c.points).map((r, i) => `<li><b>P${i + 1}</b>${r}</li>`).join('');
+    $('changeOut').textContent = Math.round(S.p.change * 100) + ' %';
+    $('rOut').textContent = S.p.r.toFixed(2); $('rhoOut').textContent = S.p.rhoM.toFixed(2);
+    $('seasOut').textContent = '±' + S.p.seasPct + ' %'; $('qaOut').textContent = S.c.qaPct + ' %';
+    $('rField').style.opacity = S.p.design === 'baci' ? 1 : 0.45;
+
+    const { m: minM, rec } = recommended(S.p);
+    const C = costs(S.c);
+    const total = fillComponentTable(S, C);
+    const nParams = PARAMS.filter(x => x.on).length;
+    const fname = FREQ_NAME[$('freq').value] || 'mensual';
+
+    $('resumenSub').textContent = `${S.c.points} puntos, muestreo ${fname}, ${nParams} parámetros por muestra, diseño ${S.p.design === 'baci' ? 'control-impacto' : 'antes y después en un punto'}. Prueba sobre ${S.target.name}.`;
+    $('kMin').innerHTML = minM ? `${minM} <small>meses</small>` : '&gt; 240 <small>meses</small>';
+    $('kMinD').textContent = minM ? `antes y después, ${Math.round(minM * S.p.perMonth)} campañas en cada periodo` : 'con estos supuestos no se alcanza; baja el CV o busca una reducción mayor';
+    const pw = powerAnalytic(S.p, S.c.monthsB, S.c.monthsP);
+    $('kPow').textContent = pct(pw);
+    const cls = pw >= S.p.power ? 'good' : (pw >= S.p.power - 0.2 ? 'warn' : 'bad');
+    const lab = { good: 'Alcanza la potencia objetivo', warn: 'Por debajo del objetivo', bad: 'Muy por debajo del objetivo' }[cls];
+    $('kPowChip').innerHTML = `<span class="chip ${cls}">${lab}</span>`;
+    $('kDur').innerHTML = `${C.totalSpan} <small>meses</small>`;
+    $('kDurD').textContent = `${S.c.monthsB} base + ${S.c.monthsW} obra + ${S.c.monthsP} seguimiento, de ${calShort(1)} a ${calShort(C.totalSpan)}`;
+    $('kCost').textContent = fmtBig(total);
+    $('kCostD').textContent = `${mxn.format(C.perCampaign.total)} por campaña · ${C.campaigns} campañas${C.extraCampaigns ? ' + ' + C.extraCampaigns + ' en lluvias' : ''}${S.c.iva ? ' · con IVA' : ''}`;
+
+    const m12 = mdc(S.p, 12);
+    let v = minM
+      ? `Con estos supuestos, demostrar una reducción de ${Math.round(S.p.change * 100)} % en ${S.target.name} con ${Math.round(S.p.power * 100)} % de potencia requiere unos ${minM} meses de muestreo antes del saneamiento y otros ${minM} después. Recomendamos ${rec} y ${rec}: cada periodo debe cubrir al menos un ciclo completo de lluvias y estiaje${S.p.design === 'ba' ? ', y en un solo punto conviene usar años completos para que la estacionalidad no se confunda con el efecto' : ''}. `
+      : `Con estos supuestos la reducción buscada no se puede demostrar en un plazo razonable. `;
+    v += `Con 12 meses por periodo solo se distinguiría una reducción de ${Math.round(m12)} % o más. Si la primera campaña es en ${calLong(1)}, la línea base cierra en ${calLong(S.c.monthsB)}, el saneamiento ocupa hasta ${calLong(S.c.monthsB + S.c.monthsW)} y el informe final queda en ${calLong(C.totalSpan)}.`;
+    if (S.c.monthsB < 12) v += ' La línea base actual es menor a un año y no cubre las dos temporadas.';
+    $('verdict').textContent = v;
+    $('useRec').dataset.rec = rec;
+
+    $('mdcBody').innerHTML = [6, 12, 18, 24, 36, 48].map(mo => `<tr${minM && mo >= minM && mo - 6 < minM ? ' style="font-weight:700"' : ''}><td>${mo}</td><td class="num">${Math.round(mo * S.p.perMonth)} + ${Math.round(mo * S.p.perMonth)}</td><td class="num">${Math.round(mdc(S.p, mo))} %</td></tr>`).join('');
+    const p12 = baselinePrecision(S.p, 12), p24 = baselinePrecision(S.p, 24);
+    $('precHint').textContent = `Para describir el estado actual del río también hace falta tiempo: con 12 meses de línea base, la mediana de ${S.target.name} en un punto queda estimada entre ${Math.round(p12.down)} % por debajo y ${Math.round(p12.up)} % por encima de su valor real (intervalo de 95 %); con 24 meses, entre −${Math.round(p24.down)} % y +${Math.round(p24.up)} %.`;
+
+    const key = JSON.stringify(S.p);
+    drawPower(S, minM);
+    if (rerunMC && key !== lastKey) { lastKey = key; scheduleMC(S, minM); }
+    drawSeries(S); drawCost(S, C); drawGantt(S, C);
+  }
+
+  // ---------- eventos ----------
+  function init() {
+    buildComponentTable(); buildPriceSources();
+    const sel = $('startMonth'); let opts = '';
+    for (let k = 0; k < 15; k++) { const t = 2026 * 12 + 9 + k, y = Math.floor(t / 12), mm = t % 12 + 1; opts += `<option value="${y}-${mm}"${y === 2026 && mm === 11 ? ' selected' : ''}>${MES_L[mm - 1]} ${y}</option>`; }
+    sel.innerHTML = opts;
+    sel.addEventListener('input', () => { const [y, mm] = sel.value.split('-').map(Number); START = { y, m: mm }; });
+    // duración recomendada al abrir
+    const S0 = read(); const r0 = recommended(S0.p).rec; $('monthsB').value = r0; $('monthsP').value = r0;
+    document.querySelectorAll('aside input, aside select').forEach(el => el.addEventListener('input', () => update(true)));
+    $('target').addEventListener('change', () => {
+      const t = TARGETS[$('target').value];
+      $('cv').value = t.cv; $('medDown').value = t.down; $('medUp').value = t.up;
+      $('medUnits').textContent = `${t.unit}. Solo dibujan la serie simulada; no cambian el tiempo ni el costo.`;
+      update(true);
+    });
+    $('useRec').addEventListener('click', () => { const r = $('useRec').dataset.rec; $('monthsB').value = r; $('monthsP').value = r; update(false); });
+    $('reseed').addEventListener('click', () => { seed += 7919; drawSeries(read()); });
+    let rt = null;
+    new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => update(false), 120); }).observe(document.querySelector('main'));
+    update(true);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
+</body></html>
