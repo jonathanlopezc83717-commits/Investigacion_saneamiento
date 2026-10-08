@@ -137,6 +137,8 @@ td.num, th.num { text-align: right; font-family: var(--font-num); font-variant-n
 tr.grp td { background: var(--surface-2); font-weight: 700; font-size: 12.5px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
 tr.total td { font-weight: 700; border-top: 2px solid var(--ink-2); }
 td input[type=number] { width: 104px; text-align: right; padding: 4px 6px; font-size: 13px; }
+td input[type=number]:disabled { background: transparent; border-color: transparent; color: var(--ink); -webkit-text-fill-color: var(--ink); opacity: 1; cursor: default; -moz-appearance: textfield; appearance: textfield; }
+td input[type=number]:disabled::-webkit-inner-spin-button, td input[type=number]:disabled::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 td .note { display: block; font-size: 12px; color: var(--muted); }
 .tag { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--warn-bg); color: var(--warn); margin-left: 6px; white-space: nowrap; }
 .tag.org { background: var(--accent-soft); color: var(--accent); margin-left: 0; margin-right: 6px; }
@@ -215,7 +217,6 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           </select>
           <div class="hint">La de control lleva sonda, nivel, datalogger, comunicación y energía; el muestreador y los sensores opcionales van solo en la de impacto.</div>
         </div>
-        <label class="check"><input type="checkbox" id="subst" checked> La sonda sustituye al laboratorio en pH, temperatura, conductividad y oxígeno en los puntos con estación</label>
         <div class="row2">
           <div class="field"><label for="fx">Tipo de cambio ($/US$)</label><input type="number" id="fx" min="1" step="any" value="17.84"></div>
           <div class="field"><label for="importPct">Importación (%) <span class="tag">supuesto</span></label><input type="number" id="importPct" min="0" max="100" step="1" value="30"></div>
@@ -241,11 +242,8 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           <label for="target">Parámetro con el que se demuestra el cambio</label>
           <select id="target">
             <option value="dbo" selected>DBO5</option>
-            <option value="dqo">DQO</option>
             <option value="sst">Sólidos suspendidos totales</option>
             <option value="cf">Coliformes fecales</option>
-            <option value="nt">Nitrógeno total</option>
-            <option value="pt">Fósforo total</option>
           </select>
         </div>
         <div class="field">
@@ -355,14 +353,14 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
         </div>
         <div class="tbl-wrap" style="margin-top:16px">
           <table>
-            <thead><tr><th>Componente</th><th class="num">Precio de lista</th><th class="num">Puesto en sitio</th><th class="num">Cantidad</th><th class="num">Subtotal</th></tr></thead>
+            <thead><tr><th>Componente</th><th class="num" id="listPriceHead">Precio de lista</th><th class="num">Puesto en sitio</th><th class="num">Cantidad</th><th class="num">Subtotal</th></tr></thead>
             <tbody id="autoBody"></tbody>
           </table>
         </div>
         <h3 style="margin-top:22px">Qué mide la estación y qué sigue en el laboratorio</h3>
         <div class="tbl-wrap"><table><thead><tr><th>Cómo se obtiene</th><th>Parámetros</th><th>Validez</th></tr></thead><tbody>
-          <tr><td>Medición directa y continua</td><td>Temperatura, pH, conductividad, oxígeno disuelto, nivel del agua y lluvia</td><td>Vigilancia y alertas; se verifica contra el laboratorio en cada campaña</td></tr>
-          <tr><td>Semiautomática: sensor sustituto con una curva propia del sitio</td><td>Sólidos suspendidos (por turbidez); DQO, DBO5, nitratos y color (por UV-Vis); coliformes fecales y E. coli (por fluorescencia tipo triptófano); amonio (por ion selectivo); fósforo total (con analizador en línea); caudal (por nivel y velocidad)</td><td>Indicador; hacen falta de 10 a 20 pares sensor–laboratorio para calibrar, y el laboratorio sigue dando el dato oficial</td></tr>
+          <tr><td>Medición directa y continua</td><td>Temperatura, pH, conductividad, oxígeno disuelto y nivel del agua</td><td>Vigilancia y alertas; se verifica con el medidor portátil en cada visita</td></tr>
+          <tr><td>Semiautomática: sensor sustituto con una curva propia del sitio</td><td>Sólidos suspendidos (por turbidez); DBO5 y coliformes fecales (por fluorescencia tipo triptófano)</td><td>Indicador; hacen falta de 10 a 20 pares sensor–laboratorio para calibrar, y el laboratorio sigue dando el dato oficial</td></tr>
           <tr><td>Muestreo automático, análisis en laboratorio</td><td>Muestras compuestas y de avenida para cualquier parámetro del paquete</td><td>Oficial si el laboratorio acreditado acepta la cadena de custodia</td></tr>
           <tr><td>Fuera del cálculo</td><td>Grasas y aceites, detergentes, metales, cianuros, sólidos sedimentables, huevos de helminto, toxicidad y enterococos</td><td>No se automatizan; si hacen falta, se cotizan aparte como campañas puntuales de laboratorio</td></tr>
         </tbody></table></div>
@@ -399,7 +397,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
 
       <section class="card" id="componentes">
         <h2>Componentes y costos</h2>
-        <p class="sub">Solo entran al cálculo los parámetros que la estación puede medir: directamente con la sonda (automatizables) o con un sensor sustituto calibrado contra el laboratorio (semiautomatizables). El laboratorio los mide en cada campaña para calibrar los sensores y dar el dato oficial. Grasas y aceites, detergentes, metales, cianuros, sólidos sedimentables, huevos de helminto, toxicidad y enterococos quedan fuera porque no se pueden automatizar. El precio de partida es la mediana de las listas publicadas que localizamos, sin IVA y sin actualizar a 2026.</p>
+        <p class="sub">El paquete es fijo y contiene solo lo necesario para que el monitoreo automático funcione y se pueda demostrar el cambio: la estación mide en continuo y el laboratorio analiza únicamente DBO5, sólidos suspendidos y coliformes fecales, los tres parámetros que calibran los sensores y dan el dato oficial. Lo demás quedó fuera porque no se automatiza o porque repite lo que ya mide otro componente. El precio de partida es la mediana de las listas publicadas que localizamos, sin IVA y sin actualizar a 2026.</p>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Componente</th><th class="num">Precio unitario</th><th class="num">Cantidad</th><th class="num">Subtotal</th></tr></thead>
@@ -450,7 +448,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           <p>La autocorrelación reduce el número efectivo de muestras con el factor (1 − ρ)/(1 + ρ), donde ρ es la correlación al intervalo de muestreo; por eso pasar de mensual a semanal mejora poco. Es la misma corrección que usa la guía de cambio mínimo detectable de Tetra Tech para la EPA. La simulación Monte Carlo genera series con estacionalidad senoidal de fase aleatoria y ruido autorregresivo, y cuenta en qué fracción de 500 réplicas la prueba detecta el cambio.</p>
           <p>En el ejemplo de serie, la estacionalidad baja las concentraciones en agosto, por dilución en lluvias, y las sube en estiaje; es un supuesto razonable para un cauce dominado por aguas residuales, pero hay que confirmarlo. Los coeficientes de variación por parámetro y las medianas son supuestos de partida, no datos del Río Hondo. Con los primeros seis a doce meses de línea base conviene recalcular el CV real del sitio y la correlación entre puntos, y volver a correr el tablero: es lo que más mueve el resultado.</p>
           <p>En el Río Hondo la seguridad manda: no se muestrea durante lluvia intensa ni con el cauce crecido, se coordina cada campaña con OAPAS, CONAGUA y Protección Civil, y el personal usa equipo para contacto con aguas residuales. Las campañas de lluvias se programan en días sin pronóstico de tormenta, en las horas posteriores a un evento.</p>
-          <p>Con muestreo puntual mensual se pierden las avenidas y los eventos cortos de descarga. Si el objetivo incluye cargas contaminantes o picos, el plan necesita aforo y muestreo compuesto o sondas en línea, que este escenario no incluye.</p>
+          <p>Las campañas mensuales de laboratorio no ven las avenidas ni las descargas cortas; eso lo cubren la estación, que mide cada 15 minutos, y el muestreador, que se dispara con la subida del nivel. La estación no mide caudal: si el objetivo incluye cargas en kg/día, hace falta aforo en campo o un radar de velocidad.</p>
         </div>
         <h3 style="margin-top:18px">Fuentes</h3>
         <ol class="src">
@@ -667,24 +665,12 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
   const pct = v => Math.round(v * 100) + ' %';
 
   // ---------- catálogo de parámetros con precios publicados (MXN por muestra, sin IVA) ----------
-  // solo parámetros que la estación mide directo (dir) o estima con un sensor sustituto calibrado contra el laboratorio (semi)
+  // paquete fijo de laboratorio: solo los parámetros que calibran los sensores de la estación y dan el dato oficial
   const PARAMS = [
-    { id: 'dbo', name: 'DBO5', norm: 'NMX-AA-028-SCFI-2021', p: { il: 676.17, gm: 525, lf: 442 }, on: true, aut: 'semi', note: 'Se estima con el espectrómetro UV-Vis o la fluorescencia tipo triptófano' },
-    { id: 'dqo', name: 'DQO', norm: 'NMX-AA-030-SCFI', p: { il: 1357.43, gm: 630, lf: 316 }, on: true, aut: 'semi', note: 'Se estima con el espectrómetro UV-Vis' },
-    { id: 'sst', name: 'Sólidos suspendidos totales', norm: 'NMX-AA-034-SCFI-2015', p: { gm: 515, lf: 241 }, on: true, aut: 'semi', note: 'Se estima con el sensor de turbidez de la sonda' },
-    { id: 'cf', name: 'Coliformes fecales', norm: 'Standard Methods 9223 B / NOM-244-SSA1-2008', p: { gm: 730, lf: 422 }, on: true, aut: 'semi', note: 'Se estima con la fluorescencia tipo triptófano' },
-    { id: 'ec', name: 'E. coli', norm: 'NMX-AA-042-SCFI-2015', p: { gm: 630 }, on: true, aut: 'semi', note: 'Se estima con la fluorescencia tipo triptófano; también hay analizadores enzimáticos en línea' },
-    { id: 'nt', name: 'Nitrógeno total (Kjeldahl + nitratos + nitritos)', norm: 'NMX-AA-026, 079 y 099', p: { il: 1640.45, gm: 2130 }, on: true, aut: 'semi', note: 'Suma de tres determinaciones en cada lista. Los nitratos se estiman con el UV-Vis y el amonio con un sensor de ion selectivo' },
-    { id: 'pt', name: 'Fósforo total', norm: 'NMX-AA-029-SCFI-2001', p: { il: 382.34, gm: 690, lf: 330 }, on: true, aut: 'semi', note: 'Requiere un analizador colorimétrico en línea, no incluido en la estación' },
-    { id: 'od', name: 'Oxígeno disuelto', norm: 'NMX-AA-012-SCFI-2001', p: { gm: 490 }, on: true, aut: 'dir', note: 'Sensor óptico de la sonda' },
-    { id: 'ph', name: 'pH', norm: 'NMX-AA-008-SCFI-2016', p: { il: 127.20, gm: 150 }, on: true, aut: 'dir', note: 'Electrodo de la sonda' },
-    { id: 'temp', name: 'Temperatura', norm: 'NMX-AA-007-SCFI-2013', p: { il: 102.82, gm: 170 }, on: true, aut: 'dir', note: 'Sensor de la sonda' },
-    { id: 'ce', name: 'Conductividad eléctrica', norm: 'NMX-AA-093-SCFI-2018', p: { il: 315.88, gm: 340 }, on: true, aut: 'dir', note: 'Celda de la sonda; un cambio brusco delata descargas y puede disparar el muestreador' },
-    { id: 'color', name: 'Color verdadero', norm: 'NMX-AA-017-SCFI-2021', p: { gm: 500 }, on: false, aut: 'semi', note: 'Se estima con el espectrómetro UV-Vis' }
+    { id: 'dbo', name: 'DBO5', norm: 'NMX-AA-028-SCFI-2021', p: { il: 676.17, gm: 525, lf: 442 }, sensor: 'fluorescencia tipo triptófano', note: 'Es el parámetro de la prueba estadística' },
+    { id: 'sst', name: 'Sólidos suspendidos totales', norm: 'NMX-AA-034-SCFI-2015', p: { gm: 515, lf: 241 }, sensor: 'turbidez de la sonda' },
+    { id: 'cf', name: 'Coliformes fecales', norm: 'Standard Methods 9223 B / NOM-244-SSA1-2008', p: { gm: 730, lf: 422 }, sensor: 'fluorescencia tipo triptófano' }
   ];
-  const AUT = { dir: 'Automatizable', semi: 'Semiautomatizable' };
-  // puntos que mandan muestra al laboratorio: en los que tienen estación, la sonda sustituye a los parámetros directos
-  const labPoints = (x, c) => x.aut === 'dir' && c.subst ? Math.max(0, c.points - Math.min(c.stations, c.points)) : c.points;
   PARAMS.forEach(x => { x.price = Math.round(med3(Object.values(x.p)) * 100) / 100; });
 
   const TARGETS = {
@@ -701,18 +687,15 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
   const AUTO = [
     { id: 'sonda', name: 'Sonda multiparamétrica con limpiador automático', usd: 15000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'dist', note: 'Sonda de instalación fija de 5 a 6 puertos con limpiador central y sensores de pH, conductividad y temperatura, oxígeno disuelto óptico y turbidez; salida SDI-12 o RS-485 y cable de 10 a 15 m. Modelos de referencia: Hydrolab HL7, YSI EXO2 o Aqua TROLL 600. La sonda sola cuesta de US$4,600 a US$8,250 y cada sensor suma de US$1,000 a US$2,500' },
     { id: 'fluor', name: 'Sensor de fluorescencia tipo triptófano', usd: 5000, kind: 'equipo', on: true, sup: true, origin: 'imp', note: 'Fluorómetro sumergible configurado para triptófano (excitación cerca de 280 nm, emisión de 350 a 365 nm), con salida analógica o digital y protección contra incrustaciones. Indica en tiempo real descargas de drenaje y materia orgánica. Modelos de referencia: Chelsea UviLux o Turner Cyclops-7F' },
-    { id: 'uvvis', name: 'Espectrómetro UV-Vis', usd: 22000, kind: 'equipo', on: false, quote: true, origin: 'imp', note: 'Sonda espectral sin reactivos con camino óptico de 5 mm, limpieza automática y su propio controlador; estima DQO, DBO, SST y nitratos con una curva del sitio. Modelos de referencia: s::can spectro::lyser, TriOS OPUS o Hach UVAS sc (este último solo mide absorbancia a 254 nm)' },
     { id: 'nivel', name: 'Sensor de nivel por radar', usd: 1000, ctrl: true, kind: 'equipo', on: true, origin: 'dist', note: 'Radar de 80 GHz sin contacto, alcance de 15 m o más, precisión de ±2 mm, IP68 y salida 4-20 mA o SDI-12, con soporte para el barandal del puente. Modelos de referencia: VEGAPULS C 21 (848.70 € sin IVA) o Endress+Hauser Micropilot FMR20' },
-    { id: 'vel', name: 'Radar de velocidad superficial', usd: 6500, kind: 'equipo', on: false, sup: true, origin: 'imp', note: 'Radar Doppler apuntado al agua, con salida SDI-12 o RS-485. Con el nivel y la sección del cauce da el caudal continuo y la carga en kg/día. Modelos de referencia: OTT SVR 100, o Sommer RQ-30, que mide nivel, velocidad y caudal en un solo equipo' },
-    { id: 'pluvio', name: 'Pluviómetro de balancín', usd: 450, kind: 'equipo', on: true, sup: true, origin: 'dist', note: 'Cubeta basculante de 0.2 mm por pulso con contacto seco hacia el datalogger, montado en un poste libre de obstáculos. Separa el efecto de la lluvia del efecto de la obra' },
     { id: 'logger', name: 'Datalogger o PLC', usd: 3000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'dist', note: 'Registrador de bajo consumo a 12 V con puertos SDI-12 y RS-485 (Modbus), al menos 2 entradas de 4-20 mA, entrada de pulsos, 2 relés para el muestreador, memoria para varias semanas y reloj sincronizado. Modelos de referencia: Campbell CR350 o CR1000Xe, OTT netDL, o un PLC industrial como Siemens S7-1200' },
     { id: 'modem', name: 'Módem celular 4G industrial con antena', mxn: 4500, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Router 4G LTE industrial de 9 a 30 V CD con puerto RS-485 o Ethernet, VPN, alarmas por SMS, antena externa y SIM de datos M2M. Debe estar homologado para telecomunicaciones en México. Modelo de referencia: Teltonika RUT241' },
     { id: 'muestreador', name: 'Muestreador automático de 24 botellas', usd: 8000, kind: 'equipo', on: true, origin: 'dist', note: 'Muestreador peristáltico portátil de 24 botellas de 1 L, con manguera de succión de 3/8 de pulgada, colador protegido y entrada de disparo desde el datalogger; se activa por subida de nivel o por un cambio brusco de conductividad o turbidez. Base con hielo; la versión refrigerada necesita conexión a la red. Modelos de referencia: Hach AS950 o Teledyne Isco 6712' },
     { id: 'solar', name: 'Energía solar', mxn: 16000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Panel monocristalino de 150 W a 12 V con soporte antirrobo, batería LiFePO4 de 12.8 V y 100 Ah con BMS y controlador de carga MPPT de 20 A; de 5 a 7 días de autonomía en temporada de lluvias' },
     { id: 'gabinete', name: 'Gabinete y protección eléctrica', mxn: 18000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Gabinete de fibra de vidrio NEMA 4X (IP66) de unos 14 × 12 × 8 pulgadas con candado y ventilación con filtro; supresores de picos para la alimentación de 12 a 24 V CD, la antena y cada línea de sensor; varilla de tierra física de cobre' },
-    { id: 'camara', name: 'Cámara 4G con alerta de apertura', mxn: 6000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Cámara de exterior 4G con panel solar propio, detección de movimiento y aviso al celular; lleva su propia SIM de datos. Contra robo y vandalismo' },
     { id: 'montaje', name: 'Montaje en el puente', mxn: 60000, ctrl: true, kind: 'obra', on: true, sup: true, origin: 'nac', note: 'Tubo protector de acero inoxidable o PVC hidráulico perforado anclado a la pila o al muro, deflector de basura aguas arriba, jaula metálica con candado para el gabinete y canalización de cables' },
     { id: 'integra', name: 'Integración y puesta en marcha', mxn: 80000, ctrl: true, kind: 'obra', on: true, sup: true, origin: 'nac', note: 'Programación del datalogger, lógica de muestreo por evento, alarmas, plataforma de datos, pruebas en sitio y capacitación del personal' },
+    { id: 'portatil', name: 'Medidor multiparamétrico portátil', usd: 2500, once: true, kind: 'equipo', on: true, sup: true, origin: 'dist', note: 'pH, conductividad, temperatura y oxígeno disuelto óptico, para verificar las sondas en cada visita y medir en los puntos sin estación. Modelos de referencia: YSI ProDSS o Hach HQ4300' },
     { id: 'permiso', name: 'Permisos y convenios', mxn: 25000, once: true, kind: 'obra', on: true, sup: true, origin: 'nac', note: 'Permiso de CONAGUA para la zona federal del cauce y convenio con OAPAS para usar el puente' }
   ];
   const ORIGIN = { nac: 'Compra nacional', dist: 'Distribuidor en México', imp: 'Importación o sobre pedido' };
@@ -758,13 +741,12 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     const c = {
       points: v('points'), perMonth: p.perMonth,
       monthsB: Math.max(1, Math.round(v('monthsB') || 1)), monthsW: Math.max(0, Math.round(v('monthsW') || 0)), monthsP: Math.max(1, Math.round(v('monthsP') || 1)),
-      monitorWorks: $('monitorWorks').checked, stations: v('autoStations') || 0, subst: $('subst').checked, qaPct: v('qaPct'), startMonth: START.m, extraPerYear: v('extraRain') || 0,
+      monitorWorks: $('monitorWorks').checked, qaPct: v('qaPct'), startMonth: START.m, extraPerYear: v('extraRain') || 0,
       samplingMode: $('samplingMode').value, samplingPoint: v('samplingPoint') || 0, samplingDay: v('samplingDay') || 0, pointsPerDay: v('pointsPerDay') || 1,
       travel: v('travel') || 0, flowOn: $('flowOn').checked, flowPrice: v('flowPrice') || 0, iva: $('iva').checked,
       rate: v('rate') || 0, designHours: v('designHours') || 0, reportHours: v('reportHours') || 0, finalHours: v('finalHours') || 0
     };
-    // el precio efectivo por punto reparte la muestra que la sonda ya no manda al laboratorio
-    c.params = PARAMS.map(x => ({ on: x.on, price: x.price * labPoints(x, c) / Math.max(1, c.points) }));
+    c.params = PARAMS.map(x => ({ on: true, price: x.price }));
     return { p, c, target: TARGETS[$('target').value], med: { down: v('medDown') || 1, up: v('medUp') || 1 } };
   }
 
@@ -970,9 +952,9 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     h += `<tr id="flowRow"><td>Aforo de caudal<span class="note">Para estimar cargas contaminantes en kg/día</span></td><td class="num" id="uFlow"></td><td class="num" id="qFlow"></td><td class="num" id="sFlow"></td></tr>`;
     h += `<tr><td>Viáticos del laboratorio</td><td class="num" id="uTrav"></td><td class="num" id="qTrav"></td><td class="num" id="sTrav"></td></tr>`;
     h += `<tr class="grp"><td colspan="4">Laboratorio, por muestra</td></tr>`;
-    h += `<tr><td colspan="4"><span class="note" id="substNote"></span></td></tr>`;
+    h += `<tr><td colspan="4"><span class="note">Calibración y validación de sensores. El laboratorio solo analiza los tres parámetros que convierten las lecturas de la estación en mg/L y NMP, y que dan el dato oficial. pH, temperatura, conductividad y oxígeno disuelto no van al laboratorio: en los puntos con estación los mide la sonda y en los demás el técnico, con el medidor portátil, durante la campaña.</span></td></tr>`;
     PARAMS.forEach((x, i) => {
-      h += `<tr><td><label class="check" style="margin:0"><input type="checkbox" id="pOn_${x.id}" data-i="${i}" ${x.on ? 'checked' : ''}> ${x.name}</label><span class="note"><span class="tag org">${AUT[x.aut]}</span>${x.norm}${x.note ? ' · ' + x.note : ''}${x.quote ? '<span class="tag">sin precio publicado, cotizar</span>' : ''}</span></td>`
+      h += `<tr><td>${x.name}<span class="note"><span class="tag org">Calibra: ${x.sensor}</span>${x.norm}${x.note ? ' · ' + x.note : ''}</span></td>`
         + `<td class="num"><input type="number" id="pPr_${x.id}" data-i="${i}" min="0" step="any" value="${x.price}" aria-label="Precio de ${x.name}"></td><td class="num" id="pQ_${x.id}"></td><td class="num" id="pS_${x.id}"></td></tr>`;
     });
     h += `<tr><td>Duplicados y blancos de control de calidad</td><td class="num" id="uQa"></td><td class="num"></td><td class="num" id="sQa"></td></tr>`;
@@ -985,10 +967,9 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     body.innerHTML = h;
     body.addEventListener('input', ev => {
       const i = ev.target.dataset.i; if (i === undefined) return;
-      if (ev.target.type === 'checkbox') PARAMS[i].on = ev.target.checked; else PARAMS[i].price = parseFloat(ev.target.value) || 0;
+      PARAMS[i].price = parseFloat(ev.target.value) || 0;
       update(false);
     });
-    body.addEventListener('change', ev => { const i = ev.target.dataset.i; if (i !== undefined && ev.target.type === 'checkbox') { PARAMS[i].on = ev.target.checked; update(false); } });
   }
 
   function fillComponentTable(S, C) {
@@ -1005,8 +986,8 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     set('uTrav', mxn2.format(c.travel) + '/campaña'); set('qTrav', `${camp}`); set('sTrav', mxn.format(c.travel * camp));
     let lab = 0;
     PARAMS.forEach(x => {
-      const q = x.on ? labPoints(x, c) * camp : 0, sub = q * x.price; lab += sub;
-      set('pQ_' + x.id, x.on ? num.format(q) : '–'); set('pS_' + x.id, x.on ? mxn.format(sub) : '–');
+      const q = c.points * camp, sub = q * x.price; lab += sub;
+      set('pQ_' + x.id, num.format(q)); set('pS_' + x.id, mxn.format(sub));
     });
     const qa = lab * c.qaPct / 100;
     set('uQa', c.qaPct + ' % del laboratorio'); set('sQa', mxn.format(qa));
@@ -1024,7 +1005,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     let h = '<tr class="grp"><td colspan="5">Equipo e instalación</td></tr>';
     AUTO.forEach((x, i) => {
       const cur = x.usd !== undefined ? 'US$' : '$';
-      h += `<tr><td><label class="check" style="margin:0"><input type="checkbox" data-a="${i}" ${x.on ? 'checked' : ''}> ${x.name}</label><span class="note"><span class="tag org">${ORIGIN[x.origin]}</span>${x.note}${x.ctrl ? ' · también en la estación de control' : ''}${x.sup ? '<span class="tag">supuesto</span>' : ''}${x.quote ? '<span class="tag">sin precio público, cotizar</span>' : ''}</span></td>`
+      h += `<tr><td>${x.name}<span class="note"><span class="tag org">${ORIGIN[x.origin]}</span>${x.note}${x.ctrl ? ' · también en la estación de control' : ''}${x.sup ? '<span class="tag">supuesto</span>' : ''}${x.quote ? '<span class="tag">sin precio público, cotizar</span>' : ''}</span></td>`
         + `<td class="num">${cur} <input type="number" data-a="${i}" min="0" step="any" value="${x.usd !== undefined ? x.usd : x.mxn}" aria-label="Precio de ${x.name}"></td><td class="num" id="aU_${x.id}"></td><td class="num" id="aQ_${x.id}"></td><td class="num" id="aS_${x.id}"></td></tr>`;
     });
     h += '<tr class="grp"><td colspan="5">Operación durante el programa</td></tr>';
@@ -1038,8 +1019,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     body.addEventListener('input', ev => {
       const i = ev.target.dataset.a; if (i === undefined) return;
       const x = AUTO[i];
-      if (ev.target.type === 'checkbox') x.on = ev.target.checked;
-      else { const v = parseFloat(ev.target.value) || 0; if (x.usd !== undefined) x.usd = v; else x.mxn = v; }
+      const v = parseFloat(ev.target.value) || 0; if (x.usd !== undefined) x.usd = v; else x.mxn = v;
       update(false);
     });
   }
@@ -1118,11 +1098,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     C.timeline.forEach(r => { r.auto = a.stations ? (r.m === 0 ? AU.capexIva : AU.monthly) : 0; r.total += r.auto; acc += r.total; r.acc = acc; });
     fillAutoTable(AU, a, C.totalSpan, Math.round(12 * S.p.perMonth + (S.c.extraPerYear || 0)));
     const total = fillComponentTable(S, C) + AU.total;
-    const covered = S.c.subst ? Math.min(S.c.stations, S.c.points) : 0;
-    $('substNote').textContent = covered
-      ? `pH, temperatura, conductividad y oxígeno disuelto solo se mandan al laboratorio desde ${S.c.points - covered} de ${S.c.points} puntos: en ${covered === 1 ? 'el punto con estación los mide' : `los ${covered} puntos con estación los mide`} la sonda, y el técnico los verifica con un medidor portátil en cada visita. Los semiautomatizables se siguen analizando en todos los puntos para calibrar los sensores y dar el dato oficial.`
-      : 'Todos los parámetros se analizan en el laboratorio en cada punto.';
-    const nParams = PARAMS.filter(x => x.on).length;
+    const nParams = PARAMS.length;
     const fname = FREQ_NAME[$('freq').value] || 'mensual';
 
     $('resumenSub').textContent = `${a.stations ? (a.stations === 2 ? 'Dos estaciones automáticas, ' : 'Una estación automática, ') : 'Sin estación automática, '}${S.c.points} puntos de laboratorio, muestreo ${fname}, ${nParams} parámetros por muestra, diseño ${S.p.design === 'baci' ? 'control-impacto' : 'antes y después en un punto'}. Prueba sobre ${S.target.name}.`;
@@ -1160,6 +1136,11 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
   // ---------- eventos ----------
   function init() {
     buildComponentTable(); buildAutoTable(); buildPriceSources();
+    // precios bloqueados al abrir; doble clic en el encabezado «Precio de lista» los bloquea o desbloquea, sin señal visible
+    let locked = true;
+    const lockPrices = () => document.querySelectorAll('#compBody input[type=number], #autoBody input[type=number]').forEach(el => { el.disabled = locked; });
+    lockPrices();
+    $('listPriceHead').addEventListener('dblclick', () => { locked = !locked; lockPrices(); const sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges(); });
     const sel = $('startMonth'); let opts = '';
     for (let k = 0; k < 15; k++) { const t = 2026 * 12 + 9 + k, y = Math.floor(t / 12), mm = t % 12 + 1; opts += `<option value="${y}-${mm}"${y === 2026 && mm === 11 ? ' selected' : ''}>${MES_L[mm - 1]} ${y}</option>`; }
     sel.innerHTML = opts;
