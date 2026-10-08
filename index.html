@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Monitoreo del Río Verde</title>
-<meta name="description" content="Simulador del costo y la duración de un programa de monitoreo de calidad del agua del Río Verde, Naucalpan de Juárez, Estado de México.">
+<title>Monitoreo del Río Hondo</title>
+<meta name="description" content="Simulador del costo y la duración de un programa de monitoreo de calidad del agua del Río Hondo, Naucalpan de Juárez, Estado de México, con estaciones automáticas y laboratorio acreditado.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3C16 3 6 15 6 21a10 10 0 0 0 20 0C26 15 16 3 16 3z' fill='%23156B4C'/%3E%3C/svg%3E">
 <style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +23,7 @@
   --accent: #156B4C;
   --accent-ink: #ffffff;
   --accent-soft: #dcebe4;
-  --s1: #1E7A55; --s2: #3A6FB5; --s3: #B7791F; --s4: #A0457F;
+  --s1: #1E7A55; --s2: #3A6FB5; --s3: #B7791F; --s4: #A0457F; --s5: #2B8C9E;
   --band: rgba(21,107,76,0.06);
   --good: #0f7a3d; --good-bg: #e2f3e8;
   --warn: #8a5a00; --warn-bg: #fbf0d6;
@@ -37,7 +37,7 @@
   :root:not([data-theme="light"]) {
     --bg: #101513; --surface: #171e1b; --surface-2: #1e2723; --ink: #e8efeb; --ink-2: #b8c4be; --muted: #8d9a93;
     --line: #2c3833; --accent: #3fa97c; --accent-ink: #0b1410; --accent-soft: #1d3a2e;
-    --s1: #2E9A6C; --s2: #4F83CF; --s3: #C08530; --s4: #B85A97; --band: rgba(63,169,124,0.08);
+    --s1: #2E9A6C; --s2: #4F83CF; --s3: #C08530; --s4: #B85A97; --s5: #3FAFC2; --band: rgba(63,169,124,0.08);
     --good: #6fd39a; --good-bg: #173326; --warn: #f0c46a; --warn-bg: #3a2e12; --bad: #ff9a8f; --bad-bg: #3d1c19;
     --after: rgba(79,131,207,0.10); color-scheme: dark;
   }
@@ -45,7 +45,7 @@
 :root[data-theme="dark"] {
   --bg: #101513; --surface: #171e1b; --surface-2: #1e2723; --ink: #e8efeb; --ink-2: #b8c4be; --muted: #8d9a93;
   --line: #2c3833; --accent: #3fa97c; --accent-ink: #0b1410; --accent-soft: #1d3a2e;
-  --s1: #2E9A6C; --s2: #4F83CF; --s3: #C08530; --s4: #B85A97; --band: rgba(63,169,124,0.08);
+  --s1: #2E9A6C; --s2: #4F83CF; --s3: #C08530; --s4: #B85A97; --s5: #3FAFC2; --band: rgba(63,169,124,0.08);
   --good: #6fd39a; --good-bg: #173326; --warn: #f0c46a; --warn-bg: #3a2e12; --bad: #ff9a8f; --bad-bg: #3d1c19;
   --after: rgba(79,131,207,0.10); color-scheme: dark;
 }
@@ -139,6 +139,7 @@ tr.total td { font-weight: 700; border-top: 2px solid var(--ink-2); }
 td input[type=number] { width: 104px; text-align: right; padding: 4px 6px; font-size: 13px; }
 td .note { display: block; font-size: 12px; color: var(--muted); }
 .tag { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--warn-bg); color: var(--warn); margin-left: 6px; white-space: nowrap; }
+.tag.org { background: var(--accent-soft); color: var(--accent); margin-left: 0; margin-right: 6px; }
 .mdc td:first-child { font-family: var(--font-num); }
 .gantt { display: grid; gap: 8px; }
 .gantt .lane { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 13px; }
@@ -162,9 +163,9 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="eyebrow">Naucalpan de Juárez, Estado de México · Monitoreo con laboratorio acreditado</div>
-    <h1>Río Verde: cuánto cuesta y cuánto tarda demostrar su saneamiento</h1>
-    <p class="lede">Simulamos un programa de muestreo con laboratorio acreditado a lo largo del Río Verde, desde el desfogue de la Presa Los Cuartos hasta su último tramo. Al mover los supuestos de la izquierda se recalculan los componentes, el costo en pesos y los meses de muestreo necesarios para que una mejora en el río sea estadísticamente significativa. No hay datos de calidad del agua del Río Verde publicados con cifras: los valores de partida son supuestos que hay que sustituir con la primera campaña.</p>
+    <div class="eyebrow">Naucalpan de Juárez, Estado de México · Monitoreo automático con validación de laboratorio acreditado</div>
+    <h1>Río Hondo: cuánto cuesta y cuánto tarda demostrar su saneamiento con monitoreo automático</h1>
+    <p class="lede">Simulamos un programa de monitoreo a lo largo del Río Hondo de Naucalpan, desde su tramo alto hasta la llegada al Vaso Regulador El Cristo. Combina estaciones automáticas, que miden cada 15 minutos y toman muestras en avenidas, con campañas de laboratorio acreditado, que dan validez oficial a los resultados y calibran los sensores. Al mover los supuestos de la izquierda se recalculan los componentes, el costo en pesos y los meses de muestreo necesarios para que una mejora en el río sea estadísticamente significativa. No encontramos datos de calidad del agua del Río Hondo publicados con cifras: los valores de partida son supuestos que hay que sustituir con la primera campaña.</p>
   </header>
 
   <div class="layout">
@@ -175,7 +176,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           <label for="points">Puntos de monitoreo <output id="pointsOut">4</output></label>
           <input type="range" id="points" min="3" max="5" step="1" value="4">
           <ul class="points-list" id="pointsList"></ul>
-          <div class="hint" style="margin-top:6px">Ubicaciones propuestas; se fijan con coordenadas en un recorrido de campo con OAPAS.</div>
+          <div class="hint" style="margin-top:6px">Ubicaciones propuestas; se fijan con coordenadas en un recorrido de campo con OAPAS y CONAGUA, que opera el cauce.</div>
         </div>
         <div class="field">
           <label for="freq">Frecuencia de campañas</label>
@@ -204,6 +205,36 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
       </details>
 
       <details open>
+        <summary>Estación automática</summary>
+        <div class="field">
+          <label for="autoStations">Estaciones</label>
+          <select id="autoStations">
+            <option value="0">Ninguna, solo laboratorio</option>
+            <option value="1">Una, en Periférico Norte (impacto)</option>
+            <option value="2" selected>Dos: impacto y tramo alto (control)</option>
+          </select>
+          <div class="hint">La de control lleva sonda, nivel, datalogger, comunicación y energía; el muestreador y los sensores opcionales van solo en la de impacto.</div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="fx">Tipo de cambio ($/US$)</label><input type="number" id="fx" min="1" step="any" value="17.84"></div>
+          <div class="field"><label for="importPct">Importación (%) <span class="tag">supuesto</span></label><input type="number" id="importPct" min="0" max="100" step="1" value="30"></div>
+        </div>
+        <div class="hint">FIX de Banxico del 28 de septiembre de 2026. La importación cubre flete, aranceles, agente aduanal y margen del distribuidor en México.</div>
+        <div class="row3">
+          <div class="field"><label for="visits">Visitas/mes</label><input type="number" id="visits" min="0" max="8" value="2"></div>
+          <div class="field"><label for="visitHours">Horas</label><input type="number" id="visitHours" min="0" step="0.5" value="5"></div>
+          <div class="field"><label for="techRate">$/hora</label><input type="number" id="techRate" min="0" step="any" value="450"></div>
+        </div>
+        <div class="hint">Visitas de limpieza, descarga y calibración por estación, con técnico propio; van sin IVA. El costo por hora es un supuesto.</div>
+        <div class="field"><label for="dataMonthly">Datos y plataforma por estación al mes ($) <span class="tag">supuesto</span></label><input type="number" id="dataMonthly" min="0" step="any" value="1500"></div>
+        <div class="row2">
+          <div class="field"><label for="consPct">Refacciones (% anual) <span class="tag">supuesto</span></label><input type="number" id="consPct" min="0" max="50" step="1" value="12"></div>
+          <div class="field"><label for="riskPct">Robo y avenidas (% anual) <span class="tag">supuesto</span></label><input type="number" id="riskPct" min="0" max="50" step="1" value="5"></div>
+        </div>
+        <div class="hint">Porcentajes sobre el valor del equipo: electrodos de pH, membranas, escobillas del limpiador, soluciones de calibración y reposición de piezas dañadas.</div>
+      </details>
+
+      <details open>
         <summary>Prueba estadística</summary>
         <div class="field">
           <label for="target">Parámetro con el que se demuestra el cambio</label>
@@ -219,7 +250,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
         <div class="field">
           <label for="design">Diseño del muestreo</label>
           <select id="design">
-            <option value="baci" selected>Control-impacto: desfogue de la presa vs Altamira</option>
+            <option value="baci" selected>Control-impacto: tramo alto vs Periférico Norte</option>
             <option value="ba">Antes y después en un solo punto</option>
           </select>
         </div>
@@ -253,8 +284,8 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
             <select id="alpha"><option value="0.05" selected>5 %</option><option value="0.1">10 %</option></select></div>
         </div>
         <div class="row2">
-          <div class="field"><label for="medDown">Mediana en Altamira <span class="tag">supuesto</span></label><input type="number" id="medDown" min="0.01" step="any" value="180"></div>
-          <div class="field"><label for="medUp">Mediana en el desfogue <span class="tag">supuesto</span></label><input type="number" id="medUp" min="0.01" step="any" value="60"></div>
+          <div class="field"><label for="medDown">Mediana en Periférico Norte <span class="tag">supuesto</span></label><input type="number" id="medDown" min="0.01" step="any" value="180"></div>
+          <div class="field"><label for="medUp">Mediana en el tramo alto <span class="tag">supuesto</span></label><input type="number" id="medUp" min="0.01" step="any" value="60"></div>
         </div>
         <div class="hint" id="medUnits">mg/L, del orden de un agua residual municipal diluida. Solo dibujan la serie simulada; no cambian el tiempo ni el costo.</div>
       </details>
@@ -289,15 +320,15 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
 
     <main>
       <section class="card" id="sitio">
-        <h2>El Río Verde hoy</h2>
+        <h2>El Río Hondo hoy</h2>
         <p class="sub">Lo que se sabe públicamente del río y que cambia el diseño del monitoreo.</p>
         <div class="facts">
-          <div class="fact"><b>Es el desfogue de la Presa Los Cuartos</b>Recorre colonias como San Rafael Chamapa y Nueva San Rafael y se desbordó a la altura del puente vehicular de Altamira. El ayuntamiento lo incluye en el saneamiento del Río Hondo.<a href="https://naucalpan.gob.mx/supervisa-alcalde-isaac-montoya-zonas-afectadas-en-rio-verde-tras-lluvias-atipicas-la-presa-de-los-cuartos-no-se-desbordo/" target="_blank" rel="noopener">Ayuntamiento, 22 jun 2025</a></div>
-          <div class="fact"><b>Lleva aguas negras domésticas</b>El análisis municipal de junio de 2025 encontró materia orgánica y coliformes fecales "muy altos", sin publicar cifras. OAPAS descartó descargas industriales; un laboratorio particular revisaría metales, fósforo y detergentes.<a href="https://www.eluniversaledomex.com.mx/valle-de-mexico/naucalpan-el-rio-verde-lleno-de-heces-analisis-confirman-contaminacion-fecal/" target="_blank" rel="noopener">El Universal Edomex, 26 jun 2025</a></div>
-          <div class="fact"><b>Las lluvias lo vuelven peligroso</b>Con 50 mm de lluvia y un tapón de basura en el canal de desfogue se desbordó en junio de 2025, con espuma de hasta medio metro; en septiembre de 2024 el agua superó un metro en casas. Se retiraron 79 toneladas de basura del cauce.<a href="https://www.nmas.com.mx/estado-de-mexico/rio-verde-sera-estudiado-tras-desfogue-presa-los-cuartos-en-naucalpan-edomex/" target="_blank" rel="noopener">N+, 23 jun 2025</a></div>
-          <div class="fact"><b>Viene obra en la subcuenca</b>El saneamiento del Río Hondo prevé ampliar la PTAR Granjas de 25 a 200 L/s y construir la PTAR El Torito de 200 L/s, con 18 a 24 meses de construcción y licitación hacia finales de 2026.<a href="https://naucalpan.gob.mx/avances-estrategicos-en-naucalpan-para-el-rescate-y-saneamiento-del-rio-hondo/" target="_blank" rel="noopener">Ayuntamiento, 30 mar 2026</a></div>
-          <div class="fact"><b>Financiamiento ya autorizado</b>Climate Fund Managers, con apoyo de los Países Bajos, autorizó 70 millones de pesos; OAPAS lleva el proyecto bajo un esquema de asociación público-privada estatal.<a href="https://naucalpan.gob.mx/avanza-proyecto-de-saneamiento-del-rio-hondo-se-invertiran-recursos-por-70-mdp/" target="_blank" rel="noopener">Ayuntamiento, 20 nov 2025</a></div>
-          <div class="fact"><b>Qué implica para el monitoreo</b>Una línea base que arranque en estiaje de 2026 y corra mientras se construye la obra; detergentes en el paquete por la espuma; campañas extra en lluvias, y ninguna toma de muestra durante avenidas.</div>
+          <div class="fact"><b>17 km y más de 600 mil vecinos</b>Es el eje de una de las zonas más densas de Naucalpan, con vivienda e industria pegadas al cauce. El municipio y WRI México trabajan desde 2021 en su rescate y en rehabilitar las riberas.<a href="https://www.cronica.com.mx/academia/consorcio-multinacional-teje-red-cientifica-social-rescatar-rio-hondo.html" target="_blank" rel="noopener">La Crónica, 14 jun 2022</a></div>
+          <div class="fact"><b>Recoge a toda la subcuenca</b>Recibe a los ríos El Sordo, Totolica, Verde (desfogue de Los Cuartos) y San Joaquín, y al Sistema Interpresas por el Interceptor Poniente. Termina en el Vaso Regulador El Cristo, que lo manda al Río de los Remedios o al Emisor del Poniente.<a href="https://www.milenio.com/politica/comunidad/naucalpan-descargas-industriales-municipales-ahogan-rio-hondo" target="_blank" rel="noopener">Milenio, 15 feb 2023</a></div>
+          <div class="fact"><b>Descargas municipales e industriales</b>CONAGUA atribuye la contaminación a ambas, sin publicar cifras. Entre 2021 y 2022 retiró 6,400 toneladas de basura y 150 mil m³ de azolve. Los metales y otros contaminantes industriales no se pueden automatizar y quedan fuera de este cálculo; conviene cotizarlos aparte para un par de campañas.<a href="https://www.milenio.com/politica/comunidad/naucalpan-descargas-industriales-municipales-ahogan-rio-hondo" target="_blank" rel="noopener">Milenio, 15 feb 2023</a></div>
+          <div class="fact"><b>Las lluvias lo vuelven peligroso</b>Protección Civil vigila 8 km del río en temporada de lluvias. El 10 de julio de 2026 el agua llegó a ras del asfalto en Periférico Norte y 16 de Septiembre, arrastrando troncos y basura desde Huixquilucan.<a href="https://www.nmas.com.mx/estado-de-mexico/clima/naucalpan-lluvias-rio-hondo-desbordamiento-periferico-norte-odapas-hoy-viernes-10-julio-2026/" target="_blank" rel="noopener">N+, 10 jul 2026</a></div>
+          <div class="fact"><b>Viene obra de saneamiento</b>El proyecto prevé ampliar la PTAR Granjas, sobre la avenida Río Hondo, de 25 a 200 L/s y construir la PTAR El Torito de 200 L/s, con 18 a 24 meses de construcción y licitación hacia finales de 2026. Climate Fund Managers, con apoyo de los Países Bajos, autorizó 70 millones de pesos.<a href="https://naucalpan.gob.mx/avances-estrategicos-en-naucalpan-para-el-rescate-y-saneamiento-del-rio-hondo/" target="_blank" rel="noopener">Ayuntamiento, 30 mar 2026</a><a href="https://naucalpan.gob.mx/avanza-proyecto-de-saneamiento-del-rio-hondo-se-invertiran-recursos-por-70-mdp/" target="_blank" rel="noopener">Ayuntamiento, 20 nov 2025</a></div>
+          <div class="fact"><b>Qué implica para el monitoreo</b>Una línea base que arranque antes de la obra y corra mientras se construye; sensores calibrados con el laboratorio desde las primeras campañas; campañas extra en lluvias, y ninguna toma de muestra durante avenidas.</div>
         </div>
       </section>
       <section class="card" id="resumen">
@@ -310,6 +341,30 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           <div class="kpi"><span class="k">Costo total estimado</span><span class="v" id="kCost">–</span><span class="d" id="kCostD"></span></div>
         </div>
         <p class="verdict" id="verdict"></p>
+      </section>
+
+      <section class="card" id="automatica">
+        <h2>Estación automática</h2>
+        <p class="sub">Mide cada 15 minutos lo que una sonda puede medir y dispara el muestreador cuando sube el río o cambia bruscamente la calidad. El laboratorio acreditado sigue siendo necesario: da la validez oficial y calibra los sensores. Los precios de lista están sin IVA; los marcados como supuesto hay que cotizarlos. Cada componente indica si se compra en México, con un distribuidor en México o por importación; los modelos son de referencia, no una recomendación de marca.</p>
+        <div class="kpis">
+          <div class="kpi"><span class="k">Inversión inicial</span><span class="v" id="aInv">–</span><span class="d" id="aInvD"></span></div>
+          <div class="kpi"><span class="k">Operación por mes</span><span class="v" id="aOp">–</span><span class="d" id="aOpD"></span></div>
+          <div class="kpi"><span class="k">Costo de las estaciones en el programa</span><span class="v" id="aTot">–</span><span class="d" id="aTotD"></span></div>
+          <div class="kpi"><span class="k">Lecturas por sensor al año</span><span class="v" id="aObs">–</span><span class="d" id="aObsD"></span></div>
+        </div>
+        <div class="tbl-wrap" style="margin-top:16px">
+          <table>
+            <thead><tr><th>Componente</th><th class="num">Precio de lista</th><th class="num">Puesto en sitio</th><th class="num">Cantidad</th><th class="num">Subtotal</th></tr></thead>
+            <tbody id="autoBody"></tbody>
+          </table>
+        </div>
+        <h3 style="margin-top:22px">Qué mide la estación y qué sigue en el laboratorio</h3>
+        <div class="tbl-wrap"><table><thead><tr><th>Cómo se obtiene</th><th>Parámetros</th><th>Validez</th></tr></thead><tbody>
+          <tr><td>Medición directa y continua</td><td>Temperatura, pH, conductividad, oxígeno disuelto, nivel del agua y lluvia</td><td>Vigilancia y alertas; se verifica contra el laboratorio en cada campaña</td></tr>
+          <tr><td>Semiautomática: sensor sustituto con una curva propia del sitio</td><td>Sólidos suspendidos (por turbidez); DQO, DBO5, nitratos y color (por UV-Vis); coliformes fecales y E. coli (por fluorescencia tipo triptófano); amonio (por ion selectivo); fósforo total (con analizador en línea); caudal (por nivel y velocidad)</td><td>Indicador; hacen falta de 10 a 20 pares sensor–laboratorio para calibrar, y el laboratorio sigue dando el dato oficial</td></tr>
+          <tr><td>Muestreo automático, análisis en laboratorio</td><td>Muestras compuestas y de avenida para cualquier parámetro del paquete</td><td>Oficial si el laboratorio acreditado acepta la cadena de custodia</td></tr>
+          <tr><td>Fuera del cálculo</td><td>Grasas y aceites, detergentes, metales, cianuros, sólidos sedimentables, huevos de helminto, toxicidad y enterococos</td><td>No se automatizan; si hacen falta, se cotizan aparte como campañas puntuales de laboratorio</td></tr>
+        </tbody></table></div>
       </section>
 
       <section class="card" id="potencia">
@@ -335,7 +390,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
         <h2>Cómo se vería una realización del monitoreo</h2>
         <p class="sub" id="serieSub">Una serie simulada con los supuestos actuales, en escala logarítmica, sobre las bandas de clasificación de CONAGUA. Cada realización es distinta: así de ruidosa es una serie de muestras puntuales.</p>
         <div class="toolbar">
-          <div class="legend"><span><i style="background:var(--s2)"></i>Desfogue de la Presa Los Cuartos (control)</span><span><i style="background:var(--s3)"></i>Puente de Altamira (impacto)</span><span><i class="box" style="background:var(--after)"></i>Después del saneamiento</span></div>
+          <div class="legend"><span><i style="background:var(--s2)"></i>Tramo alto (control)</span><span><i style="background:var(--s3)"></i>Periférico Norte (impacto)</span><span><i class="box" style="background:var(--after)"></i>Después del saneamiento</span></div>
           <button class="btn ghost" id="reseed" type="button">Otra realización</button>
         </div>
         <div class="chart" id="seriesChart"><div class="tip"></div></div>
@@ -343,7 +398,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
 
       <section class="card" id="componentes">
         <h2>Componentes y costos</h2>
-        <p class="sub">Marcamos los parámetros que entran al paquete de laboratorio y ajustamos su precio por muestra. El precio de partida es la mediana de las listas publicadas que localizamos, sin IVA y sin actualizar a 2026.</p>
+        <p class="sub">Solo entran al cálculo los parámetros que la estación puede medir: directamente con la sonda (automatizables) o con un sensor sustituto calibrado contra el laboratorio (semiautomatizables). El laboratorio los mide en cada campaña para calibrar los sensores y dar el dato oficial. Grasas y aceites, detergentes, metales, cianuros, sólidos sedimentables, huevos de helminto, toxicidad y enterococos quedan fuera porque no se pueden automatizar. El precio de partida es la mediana de las listas publicadas que localizamos, sin IVA y sin actualizar a 2026.</p>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Componente</th><th class="num">Precio unitario</th><th class="num">Cantidad</th><th class="num">Subtotal</th></tr></thead>
@@ -351,7 +406,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           </table>
         </div>
         <h3 style="margin-top:22px">Gasto por mes</h3>
-        <div class="legend"><span><i class="box" style="background:var(--s1)"></i>Laboratorio</span><span><i class="box" style="background:var(--s2)"></i>Muestreo y aforo</span><span><i class="box" style="background:var(--s3)"></i>Viáticos</span><span><i class="box" style="background:var(--s4)"></i>Ingeniería</span></div>
+        <div class="legend"><span><i class="box" style="background:var(--s1)"></i>Laboratorio</span><span><i class="box" style="background:var(--s2)"></i>Muestreo y aforo</span><span><i class="box" style="background:var(--s3)"></i>Viáticos</span><span><i class="box" style="background:var(--s4)"></i>Ingeniería</span><span><i class="box" style="background:var(--s5)"></i>Estación automática</span></div>
         <div class="chart" id="costChart"><div class="tip"></div></div>
       </section>
 
@@ -381,12 +436,19 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
               </tbody></table></div>
           </div>
         </div>
+        <h3 style="margin-top:20px">Marco normativo</h3>
+        <div class="notes">
+          <p><b>NOM-001-SEMARNAT-2021.</b> Fija los límites de contaminantes en las descargas de aguas residuales a cuerpos receptores de la nación y está vigente desde el 11 de marzo de 2023. Aplica a quien descarga al Río Hondo con permiso de CONAGUA, como las futuras PTAR Granjas y El Torito y la industria, pero no clasifica al río en sí. Sirve para elegir los parámetros del paquete y para vigilar a las fuentes.</p>
+          <p><b>Calidad del río.</b> Se evalúa con la escala de CONAGUA de la tabla de arriba y con los criterios de la Red Nacional de Medición de Calidad del Agua (RENAMECA), que muestrea los ríos cada dos meses. Entre sus parámetros están la turbiedad y la absorción UV, que la estación mide en continuo.</p>
+          <p><b>Validez de los datos.</b> Solo los informes de un laboratorio acreditado ante la EMA y aprobado por CONAGUA, con métodos NMX, sirven ante la autoridad. El muestreo de cuerpos receptores sigue la NMX-AA-014-1980. Los datos de la sonda sirven para vigilancia, alertas y estimación de cargas; las muestras del muestreador automático valen si el laboratorio acepta la cadena de custodia.</p>
+          <p><b>Mediciones de campo.</b> La sonda usa el mismo principio que los métodos de campo de temperatura (NMX-AA-007), pH (NMX-AA-008), conductividad (NMX-AA-093) y oxígeno disuelto (NMX-AA-012). En cada campaña conviene comparar la lectura de la sonda con la del laboratorio y registrar la diferencia.</p>
+        </div>
         <h3 style="margin-top:20px">Cómo calcula el tablero</h3>
         <div class="notes">
           <p>Trabajamos con el logaritmo de las concentraciones, porque en ríos se distribuyen de forma sesgada. La reducción se prueba con una prueba t de dos colas sobre las medias logarítmicas de antes y después; en el diseño control-impacto la prueba se hace sobre la diferencia entre aguas abajo y aguas arriba de cada campaña, lo que cancela lluvias, estiaje y otros cambios que afectan a los dos puntos.</p>
           <p>La autocorrelación reduce el número efectivo de muestras con el factor (1 − ρ)/(1 + ρ), donde ρ es la correlación al intervalo de muestreo; por eso pasar de mensual a semanal mejora poco. Es la misma corrección que usa la guía de cambio mínimo detectable de Tetra Tech para la EPA. La simulación Monte Carlo genera series con estacionalidad senoidal de fase aleatoria y ruido autorregresivo, y cuenta en qué fracción de 500 réplicas la prueba detecta el cambio.</p>
-          <p>En el ejemplo de serie, la estacionalidad baja las concentraciones en agosto, por dilución en lluvias, y las sube en estiaje; es un supuesto razonable para un cauce dominado por aguas negras, pero hay que confirmarlo. Los coeficientes de variación por parámetro y las medianas son supuestos de partida, no datos del Río Verde. Con los primeros seis a doce meses de línea base conviene recalcular el CV real del sitio y la correlación entre puntos, y volver a correr el tablero: es lo que más mueve el resultado.</p>
-          <p>En el Río Verde la seguridad manda: no se muestrea durante lluvia intensa ni con el cauce crecido, se coordina cada campaña con OAPAS y Protección Civil, y el personal usa equipo para contacto con aguas residuales. Las campañas de lluvias se programan en días sin pronóstico de tormenta, en las horas posteriores a un evento.</p>
+          <p>En el ejemplo de serie, la estacionalidad baja las concentraciones en agosto, por dilución en lluvias, y las sube en estiaje; es un supuesto razonable para un cauce dominado por aguas residuales, pero hay que confirmarlo. Los coeficientes de variación por parámetro y las medianas son supuestos de partida, no datos del Río Hondo. Con los primeros seis a doce meses de línea base conviene recalcular el CV real del sitio y la correlación entre puntos, y volver a correr el tablero: es lo que más mueve el resultado.</p>
+          <p>En el Río Hondo la seguridad manda: no se muestrea durante lluvia intensa ni con el cauce crecido, se coordina cada campaña con OAPAS, CONAGUA y Protección Civil, y el personal usa equipo para contacto con aguas residuales. Las campañas de lluvias se programan en días sin pronóstico de tormenta, en las horas posteriores a un evento.</p>
           <p>Con muestreo puntual mensual se pierden las avenidas y los eventos cortos de descarga. Si el objetivo incluye cargas contaminantes o picos, el plan necesita aforo y muestreo compuesto o sondas en línea, que este escenario no incluye.</p>
         </div>
         <h3 style="margin-top:18px">Fuentes</h3>
@@ -396,9 +458,13 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           <li>Lista de precios 2023, registro LAE160. <a href="https://platiica.economia.gob.mx/wp-content/uploads/sites/5/Tarifas/LAE160-1.PDF" target="_blank" rel="noopener">Catálogo de evaluación de la conformidad</a></li>
           <li>Laboratorio Ambiental Sigma, listado de precios 2023. <a href="https://platiica.economia.gob.mx/evaluacion-de-la-conformidad/wp-content/uploads/sites/5/Tarifas/LAS010-1.PDF" target="_blank" rel="noopener">Catálogo de evaluación de la conformidad</a></li>
           <li>Criterios de CONAGUA para valorar la calidad del agua de cuerpos superficiales, reproducidos en el reporte de calidad del agua, Región Centro, 4.º trimestre de 2025. <a href="https://tabasco.gob.mx/sites/default/files/users/usersedenertabasco/REG%20CENTRO%204TO%20TRIMESTRE%202025.pdf" target="_blank" rel="noopener">Gobierno de Tabasco</a>; escala de DBO5 en <a href="https://apps1.semarnat.gob.mx:8443/dgeia/clave20_cd/archivos/pdf/clave_12_met.pdf" target="_blank" rel="noopener">SEMARNAT, nota metodológica (CONAGUA, 2011)</a></li>
-          <li>Gobierno Municipal de Naucalpan. <a href="https://naucalpan.gob.mx/supervisa-alcalde-isaac-montoya-zonas-afectadas-en-rio-verde-tras-lluvias-atipicas-la-presa-de-los-cuartos-no-se-desbordo/" target="_blank" rel="noopener">Supervisa alcalde zonas afectadas en Río Verde</a> (22 jun 2025); <a href="https://naucalpan.gob.mx/avanza-proyecto-de-saneamiento-del-rio-hondo-se-invertiran-recursos-por-70-mdp/" target="_blank" rel="noopener">Avanza proyecto de saneamiento del Río Hondo</a> (20 nov 2025); <a href="https://naucalpan.gob.mx/avances-estrategicos-en-naucalpan-para-el-rescate-y-saneamiento-del-rio-hondo/" target="_blank" rel="noopener">Avances estratégicos para el saneamiento del Río Hondo</a> (30 mar 2026)</li>
-          <li>El Universal. <a href="https://www.eluniversaledomex.com.mx/valle-de-mexico/naucalpan-el-rio-verde-lleno-de-heces-analisis-confirman-contaminacion-fecal/" target="_blank" rel="noopener">Análisis confirman contaminación fecal en el Río Verde</a> (26 jun 2025); <a href="https://www.eluniversal.com.mx/metropoli/haran-nuevo-analisis-a-espuma-de-rio-verde-de-naucalpan-para-descartar-presencia-de-metales-lo-realizara-un-laboratorio-particular/" target="_blank" rel="noopener">Nuevo análisis a la espuma del Río Verde</a> (2025)</li>
-          <li>N+. <a href="https://www.nmas.com.mx/estado-de-mexico/rio-verde-sera-estudiado-tras-desfogue-presa-los-cuartos-en-naucalpan-edomex/" target="_blank" rel="noopener">Estudiarán Río Verde tras desfogue de la Presa Los Cuartos</a> (23 jun 2025); TV Azteca, <a href="https://www.tvazteca.com/aztecanoticias/el-rio-verde-vuelve-a-golpear-vecinos-naucalpan-sufren-inundaciones-historicas" target="_blank" rel="noopener">El río Verde vuelve a golpear</a> (23 jun 2025)</li>
+          <li>Gobierno Municipal de Naucalpan. <a href="https://naucalpan.gob.mx/avanza-proyecto-de-saneamiento-del-rio-hondo-se-invertiran-recursos-por-70-mdp/" target="_blank" rel="noopener">Avanza proyecto de saneamiento del Río Hondo</a> (20 nov 2025); <a href="https://naucalpan.gob.mx/avances-estrategicos-en-naucalpan-para-el-rescate-y-saneamiento-del-rio-hondo/" target="_blank" rel="noopener">Avances estratégicos para el saneamiento del Río Hondo</a> (30 mar 2026)</li>
+          <li>Milenio. <a href="https://www.milenio.com/politica/comunidad/naucalpan-descargas-industriales-municipales-ahogan-rio-hondo" target="_blank" rel="noopener">Descargas industriales y municipales ahogan al Río Hondo de Naucalpan</a> (15 feb 2023)</li>
+          <li>La Crónica de Hoy. <a href="https://www.cronica.com.mx/academia/consorcio-multinacional-teje-red-cientifica-social-rescatar-rio-hondo.html" target="_blank" rel="noopener">Consorcio multinacional teje red científica y social para rescatar el Río Hondo</a> (14 jun 2022)</li>
+          <li>N+. <a href="https://www.nmas.com.mx/estado-de-mexico/clima/naucalpan-lluvias-rio-hondo-desbordamiento-periferico-norte-odapas-hoy-viernes-10-julio-2026/" target="_blank" rel="noopener">Río Hondo a punto de desbordarse en Periférico Norte</a> (10 jul 2026); La Jornada Estado de México, <a href="https://lajornadaestadodemexico.com/naucalpan-activa-alerta-y-vigilancia-en-8-kilometros-del-rio-hondo-por-lluvias/" target="_blank" rel="noopener">Naucalpan vigila 8 kilómetros del Río Hondo por lluvias</a> (15 may 2026)</li>
+          <li>Precios de equipo: In-Situ, <a href="https://in-situ.com/us/products/courses_decontamination_pumps_communication_multiparameter-sondes-multiprobes" target="_blank" rel="noopener">Aqua TROLL 600</a> (US$4,600 sin sensores); Fondriest, cotización de sonda YSI EXO2 de 6 puertos en <a href="https://www.ogs.it/sites/default/files/2026-02/All.B%20.pdf" target="_blank" rel="noopener">licitación de OGS</a> (US$8,250); RS Components, <a href="https://befr.rs-online.com/web/p/level-sensors/2067074" target="_blank" rel="noopener">VEGAPULS C 21</a> (848.70 € sin IVA); eBay, <a href="https://www.ebay.com/p/892236854" target="_blank" rel="noopener">muestreador Isco 6712</a> (US$8,000 nuevo). El resto son supuestos para cotizar.</li>
+          <li>Tipo de cambio FIX del 28 de septiembre de 2026. <a href="https://www.eldolar.info/es-MX/mexico/dia/20260928" target="_blank" rel="noopener">eldolar.info</a></li>
+          <li>Secretaría de Economía. <a href="https://platiica.economia.gob.mx/normalizacion/?p=193509" target="_blank" rel="noopener">Catálogo Mexicano de Normas: NOM-001-SEMARNAT-2021</a>. CONAGUA, <a href="https://atl.org.mx/wp-content/uploads/pdf/Golfo/Presentacion-RENAMECA_CONAGUA.pdf" target="_blank" rel="noopener">presentación de la RENAMECA</a></li>
           <li>Harcum, J. y Dressing, S. Minimum Detectable Change and Power Analysis. Tetra Tech para US EPA. <a href="https://archive.epa.gov/region5/agriculture/web/pdf/nutrient-webinar-mdc-20150428.pdf" target="_blank" rel="noopener">archive.epa.gov</a></li>
         </ol>
       </section>
@@ -600,28 +666,22 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
   const pct = v => Math.round(v * 100) + ' %';
 
   // ---------- catálogo de parámetros con precios publicados (MXN por muestra, sin IVA) ----------
+  // solo parámetros que la estación mide directo (dir) o estima con un sensor sustituto calibrado contra el laboratorio (semi)
   const PARAMS = [
-    { id: 'dbo', name: 'DBO5', norm: 'NMX-AA-028-SCFI-2021', p: { il: 676.17, gm: 525, lf: 442 }, on: true },
-    { id: 'dqo', name: 'DQO', norm: 'NMX-AA-030-SCFI', p: { il: 1357.43, gm: 630, lf: 316 }, on: true },
-    { id: 'sst', name: 'Sólidos suspendidos totales', norm: 'NMX-AA-034-SCFI-2015', p: { gm: 515, lf: 241 }, on: true },
-    { id: 'cf', name: 'Coliformes fecales', norm: 'Standard Methods 9223 B / NOM-244-SSA1-2008', p: { gm: 730, lf: 422 }, on: true },
-    { id: 'ec', name: 'E. coli', norm: 'NMX-AA-042-SCFI-2015', p: { gm: 630 }, on: true },
-    { id: 'nt', name: 'Nitrógeno total (Kjeldahl + nitratos + nitritos)', norm: 'NMX-AA-026, 079 y 099', p: { il: 1640.45, gm: 2130 }, on: true, note: 'Suma de tres determinaciones en cada lista' },
-    { id: 'pt', name: 'Fósforo total', norm: 'NMX-AA-029-SCFI-2001', p: { il: 382.34, gm: 690, lf: 330 }, on: true },
-    { id: 'od', name: 'Oxígeno disuelto', norm: 'NMX-AA-012-SCFI-2001', p: { gm: 490 }, on: true },
-    { id: 'ph', name: 'pH', norm: 'NMX-AA-008-SCFI-2016', p: { il: 127.20, gm: 150 }, on: true },
-    { id: 'temp', name: 'Temperatura', norm: 'NMX-AA-007-SCFI-2013', p: { il: 102.82, gm: 170 }, on: true },
-    { id: 'ce', name: 'Conductividad eléctrica', norm: 'NMX-AA-093-SCFI-2018', p: { il: 315.88, gm: 340 }, on: true },
-    { id: 'gya', name: 'Grasas y aceites', norm: 'NMX-AA-005-SCFI-2013', p: { il: 950.82, gm: 870 }, on: true },
-    { id: 'saam', name: 'Detergentes (sustancias activas al azul de metileno)', norm: 'NMX-AA-039-SCFI-2001', p: { gm: 800 }, on: true, note: 'Mide lo que formó la espuma de junio de 2025' },
-    { id: 'ssed', name: 'Sólidos sedimentables', norm: 'NMX-AA-004-SCFI-2013', p: { gm: 410 }, on: false },
-    { id: 'color', name: 'Color verdadero', norm: 'NMX-AA-017-SCFI-2021', p: { gm: 500 }, on: false },
-    { id: 'hh', name: 'Huevos de helminto', norm: 'NMX-AA-113-SCFI-2012', p: { gm: 2220 }, on: false },
-    { id: 'met', name: 'Metales (As, Cd, Cu, Cr, Hg, Ni, Pb, Zn)', norm: 'NMX-AA-051-SCFI-2016 / EPA 6010C', p: { il: 4429.31, gm: 3645 }, on: false, note: 'Microanálisis: $775 el primer metal y $410 cada adicional. Conviene al menos en un par de campañas para confirmar que no hay aporte industrial' },
-    { id: 'cn', name: 'Cianuros totales', norm: 'NMX-AA-058-SCFI-2001', p: { il: 625.71, gm: 830 }, on: false },
-    { id: 'tox', name: 'Toxicidad aguda', norm: 'Vibrio fischeri', p: {}, on: false, quote: true },
-    { id: 'ent', name: 'Enterococos fecales', norm: '', p: {}, on: false, quote: true }
+    { id: 'dbo', name: 'DBO5', norm: 'NMX-AA-028-SCFI-2021', p: { il: 676.17, gm: 525, lf: 442 }, on: true, aut: 'semi', note: 'Se estima con el espectrómetro UV-Vis o la fluorescencia tipo triptófano' },
+    { id: 'dqo', name: 'DQO', norm: 'NMX-AA-030-SCFI', p: { il: 1357.43, gm: 630, lf: 316 }, on: true, aut: 'semi', note: 'Se estima con el espectrómetro UV-Vis' },
+    { id: 'sst', name: 'Sólidos suspendidos totales', norm: 'NMX-AA-034-SCFI-2015', p: { gm: 515, lf: 241 }, on: true, aut: 'semi', note: 'Se estima con el sensor de turbidez de la sonda' },
+    { id: 'cf', name: 'Coliformes fecales', norm: 'Standard Methods 9223 B / NOM-244-SSA1-2008', p: { gm: 730, lf: 422 }, on: true, aut: 'semi', note: 'Se estima con la fluorescencia tipo triptófano' },
+    { id: 'ec', name: 'E. coli', norm: 'NMX-AA-042-SCFI-2015', p: { gm: 630 }, on: true, aut: 'semi', note: 'Se estima con la fluorescencia tipo triptófano; también hay analizadores enzimáticos en línea' },
+    { id: 'nt', name: 'Nitrógeno total (Kjeldahl + nitratos + nitritos)', norm: 'NMX-AA-026, 079 y 099', p: { il: 1640.45, gm: 2130 }, on: true, aut: 'semi', note: 'Suma de tres determinaciones en cada lista. Los nitratos se estiman con el UV-Vis y el amonio con un sensor de ion selectivo' },
+    { id: 'pt', name: 'Fósforo total', norm: 'NMX-AA-029-SCFI-2001', p: { il: 382.34, gm: 690, lf: 330 }, on: true, aut: 'semi', note: 'Requiere un analizador colorimétrico en línea, no incluido en la estación' },
+    { id: 'od', name: 'Oxígeno disuelto', norm: 'NMX-AA-012-SCFI-2001', p: { gm: 490 }, on: true, aut: 'dir', note: 'Sensor óptico de la sonda' },
+    { id: 'ph', name: 'pH', norm: 'NMX-AA-008-SCFI-2016', p: { il: 127.20, gm: 150 }, on: true, aut: 'dir', note: 'Electrodo de la sonda' },
+    { id: 'temp', name: 'Temperatura', norm: 'NMX-AA-007-SCFI-2013', p: { il: 102.82, gm: 170 }, on: true, aut: 'dir', note: 'Sensor de la sonda' },
+    { id: 'ce', name: 'Conductividad eléctrica', norm: 'NMX-AA-093-SCFI-2018', p: { il: 315.88, gm: 340 }, on: true, aut: 'dir', note: 'Celda de la sonda; un cambio brusco delata descargas y puede disparar el muestreador' },
+    { id: 'color', name: 'Color verdadero', norm: 'NMX-AA-017-SCFI-2021', p: { gm: 500 }, on: false, aut: 'semi', note: 'Se estima con el espectrómetro UV-Vis' }
   ];
+  const AUT = { dir: 'Automatizable', semi: 'Semiautomatizable' };
   PARAMS.forEach(x => { x.price = Math.round(med3(Object.values(x.p)) * 100) / 100; });
 
   const TARGETS = {
@@ -632,8 +692,49 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     nt: { name: 'nitrógeno total', cv: 0.5, down: 45, up: 15, unit: 'mg/L', bands: null },
     pt: { name: 'fósforo total', cv: 0.6, down: 7, up: 2.5, unit: 'mg/L', bands: null }
   };
+  // ---------- estación automática (precios sin IVA) ----------
+  // usd: precio de lista que se convierte con tipo de cambio e importación; mxn: compra o servicio local.
+  // ctrl: también va en la estación de control; once: una sola vez en el programa; kind 'equipo': entra en refacciones y reposición.
+  const AUTO = [
+    { id: 'sonda', name: 'Sonda multiparamétrica con limpiador automático', usd: 15000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'dist', note: 'Sonda de instalación fija de 5 a 6 puertos con limpiador central y sensores de pH, conductividad y temperatura, oxígeno disuelto óptico y turbidez; salida SDI-12 o RS-485 y cable de 10 a 15 m. Modelos de referencia: Hydrolab HL7, YSI EXO2 o Aqua TROLL 600. La sonda sola cuesta de US$4,600 a US$8,250 y cada sensor suma de US$1,000 a US$2,500' },
+    { id: 'fluor', name: 'Sensor de fluorescencia tipo triptófano', usd: 5000, kind: 'equipo', on: true, sup: true, origin: 'imp', note: 'Fluorómetro sumergible configurado para triptófano (excitación cerca de 280 nm, emisión de 350 a 365 nm), con salida analógica o digital y protección contra incrustaciones. Indica en tiempo real descargas de drenaje y materia orgánica. Modelos de referencia: Chelsea UviLux o Turner Cyclops-7F' },
+    { id: 'uvvis', name: 'Espectrómetro UV-Vis', usd: 22000, kind: 'equipo', on: false, quote: true, origin: 'imp', note: 'Sonda espectral sin reactivos con camino óptico de 5 mm, limpieza automática y su propio controlador; estima DQO, DBO, SST y nitratos con una curva del sitio. Modelos de referencia: s::can spectro::lyser, TriOS OPUS o Hach UVAS sc (este último solo mide absorbancia a 254 nm)' },
+    { id: 'nivel', name: 'Sensor de nivel por radar', usd: 1000, ctrl: true, kind: 'equipo', on: true, origin: 'dist', note: 'Radar de 80 GHz sin contacto, alcance de 15 m o más, precisión de ±2 mm, IP68 y salida 4-20 mA o SDI-12, con soporte para el barandal del puente. Modelos de referencia: VEGAPULS C 21 (848.70 € sin IVA) o Endress+Hauser Micropilot FMR20' },
+    { id: 'vel', name: 'Radar de velocidad superficial', usd: 6500, kind: 'equipo', on: false, sup: true, origin: 'imp', note: 'Radar Doppler apuntado al agua, con salida SDI-12 o RS-485. Con el nivel y la sección del cauce da el caudal continuo y la carga en kg/día. Modelos de referencia: OTT SVR 100, o Sommer RQ-30, que mide nivel, velocidad y caudal en un solo equipo' },
+    { id: 'pluvio', name: 'Pluviómetro de balancín', usd: 450, kind: 'equipo', on: true, sup: true, origin: 'dist', note: 'Cubeta basculante de 0.2 mm por pulso con contacto seco hacia el datalogger, montado en un poste libre de obstáculos. Separa el efecto de la lluvia del efecto de la obra' },
+    { id: 'logger', name: 'Datalogger o PLC', usd: 3000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'dist', note: 'Registrador de bajo consumo a 12 V con puertos SDI-12 y RS-485 (Modbus), al menos 2 entradas de 4-20 mA, entrada de pulsos, 2 relés para el muestreador, memoria para varias semanas y reloj sincronizado. Modelos de referencia: Campbell CR350 o CR1000Xe, OTT netDL, o un PLC industrial como Siemens S7-1200' },
+    { id: 'modem', name: 'Módem celular 4G industrial con antena', mxn: 4500, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Router 4G LTE industrial de 9 a 30 V CD con puerto RS-485 o Ethernet, VPN, alarmas por SMS, antena externa y SIM de datos M2M. Debe estar homologado para telecomunicaciones en México. Modelo de referencia: Teltonika RUT241' },
+    { id: 'muestreador', name: 'Muestreador automático de 24 botellas', usd: 8000, kind: 'equipo', on: true, origin: 'dist', note: 'Muestreador peristáltico portátil de 24 botellas de 1 L, con manguera de succión de 3/8 de pulgada, colador protegido y entrada de disparo desde el datalogger; se activa por subida de nivel o por un cambio brusco de conductividad o turbidez. Base con hielo; la versión refrigerada necesita conexión a la red. Modelos de referencia: Hach AS950 o Teledyne Isco 6712' },
+    { id: 'solar', name: 'Energía solar', mxn: 16000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Panel monocristalino de 150 W a 12 V con soporte antirrobo, batería LiFePO4 de 12.8 V y 100 Ah con BMS y controlador de carga MPPT de 20 A; de 5 a 7 días de autonomía en temporada de lluvias' },
+    { id: 'gabinete', name: 'Gabinete y protección eléctrica', mxn: 18000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Gabinete de fibra de vidrio NEMA 4X (IP66) de unos 14 × 12 × 8 pulgadas con candado y ventilación con filtro; supresores de picos para la alimentación de 12 a 24 V CD, la antena y cada línea de sensor; varilla de tierra física de cobre' },
+    { id: 'camara', name: 'Cámara 4G con alerta de apertura', mxn: 6000, ctrl: true, kind: 'equipo', on: true, sup: true, origin: 'nac', note: 'Cámara de exterior 4G con panel solar propio, detección de movimiento y aviso al celular; lleva su propia SIM de datos. Contra robo y vandalismo' },
+    { id: 'montaje', name: 'Montaje en el puente', mxn: 60000, ctrl: true, kind: 'obra', on: true, sup: true, origin: 'nac', note: 'Tubo protector de acero inoxidable o PVC hidráulico perforado anclado a la pila o al muro, deflector de basura aguas arriba, jaula metálica con candado para el gabinete y canalización de cables' },
+    { id: 'integra', name: 'Integración y puesta en marcha', mxn: 80000, ctrl: true, kind: 'obra', on: true, sup: true, origin: 'nac', note: 'Programación del datalogger, lógica de muestreo por evento, alarmas, plataforma de datos, pruebas en sitio y capacitación del personal' },
+    { id: 'permiso', name: 'Permisos y convenios', mxn: 25000, once: true, kind: 'obra', on: true, sup: true, origin: 'nac', note: 'Permiso de CONAGUA para la zona federal del cauce y convenio con OAPAS para usar el puente' }
+  ];
+  const ORIGIN = { nac: 'Compra nacional', dist: 'Distribuidor en México', imp: 'Importación o sobre pedido' };
+  function readAuto(c) {
+    const v = id => parseFloat($(id).value);
+    return { stations: v('autoStations') || 0, fx: v('fx') || 0, imp: (v('importPct') || 0) / 100, visits: v('visits') || 0, visitHours: v('visitHours') || 0,
+      tech: v('techRate') || 0, data: v('dataMonthly') || 0, cons: (v('consPct') || 0) / 100, risk: (v('riskPct') || 0) / 100, iva: c.iva ? 1.16 : 1 };
+  }
+  // inversión en el mes de arranque y operación en cada mes del programa
+  function autoCosts(a, months) {
+    const rows = AUTO.map(x => {
+      const unit = x.usd !== undefined ? x.usd * a.fx * (1 + a.imp) : x.mxn;
+      const qty = !x.on || a.stations === 0 ? 0 : (x.once ? 1 : 1 + (a.stations === 2 && x.ctrl ? 1 : 0));
+      return { x, unit, qty, sub: unit * qty };
+    });
+    const capex = rows.reduce((t, r) => t + r.sub, 0);
+    const equip = rows.filter(r => r.x.kind === 'equipo').reduce((t, r) => t + r.sub, 0);
+    const visitsM = a.stations * a.visits * a.visitHours * a.tech;
+    const extM = a.stations * a.data + equip * (a.cons + a.risk) / 12;
+    const monthly = visitsM + extM * a.iva;
+    return { rows, capex, equip, visitsM, extM, monthly, capexIva: capex * a.iva, total: capex * a.iva + monthly * months };
+  }
+
   const BAND_NAMES = ['Excelente', 'Buena', 'Aceptable', 'Contaminada', 'Fuertemente contaminada'];
-  const ROLES = ['Desfogue de la Presa Los Cuartos (control)', 'Nueva San Rafael y San Rafael Chamapa (descargas domésticas)', 'Puente vehicular de Altamira (impacto, zona de desbordes)', 'Último tramo antes del cauce receptor (efecto acumulado)', 'Vaso de la Presa Los Cuartos'];
+  const ROLES = ['Tramo alto, a la entrada del río a la zona urbana (control)', 'Después de recibir a los ríos Verde, Totolica y El Sordo (aportes de la subcuenca)', 'Periférico Norte y avenida 16 de Septiembre (impacto: zona industrial y desbordes)', 'Llegada al Vaso Regulador El Cristo (efecto acumulado)', 'Salida del Vaso de Cristo hacia el Río de los Remedios'];
   const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   const MES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   let START = { y: 2026, m: 11 };
@@ -804,7 +905,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
       let best = pts[0]; pts.forEach(q => { if (Math.abs(q.x - xv) < Math.abs(best.x - xv)) best = q; });
       cross.setAttribute('x1', X(best.x)); cross.setAttribute('x2', X(best.x)); cross.setAttribute('opacity', 0.5);
       const f = v => v >= 100 ? num.format(Math.round(v)) : num.format(v);
-      tipShow(el, X(best.x), Y(Math.max(best.up, best.down)), `<b>${calLong(Math.round(best.x) + 1)}</b> · ${best.after ? 'después' : 'antes'}<br>Desfogue de la presa: ${f(best.up)} ${S.target.unit}<br>Puente de Altamira: ${f(best.down)} ${S.target.unit}`);
+      tipShow(el, X(best.x), Y(Math.max(best.up, best.down)), `<b>${calLong(Math.round(best.x) + 1)}</b> · ${best.after ? 'después' : 'antes'}<br>Tramo alto: ${f(best.up)} ${S.target.unit}<br>Periférico Norte: ${f(best.down)} ${S.target.unit}`);
     };
     hit.addEventListener('mousemove', move); hit.addEventListener('touchstart', move, { passive: true });
     hit.addEventListener('mouseleave', () => { tipHide(el); cross.setAttribute('opacity', 0); });
@@ -817,18 +918,20 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     const el = $('costChart'), { w, h } = frame(el, 240);
     const m = { l: 64, r: 10, t: 10, b: 34 };
     const T = C.timeline, n = T.length;
-    const max = Math.max(...T.map(r => r.total)) || 1;
+    // si la inversión inicial aplasta al resto de los meses, se recorta su barra y se rotula
+    const maxRest = Math.max(0, ...T.slice(1).map(r => r.total)), clip = maxRest > 0 && T[0].total > 2.5 * maxRest;
+    const max = (clip ? maxRest : Math.max(...T.map(r => r.total))) || 1;
     const ticks = niceTicks(0, max * 1.05, 4), top = ticks[ticks.length - 1] || max;
     const bw = (w - m.l - m.r) / n, X = i => m.l + i * bw, Y = v => m.t + (1 - v / top) * (h - m.t - m.b);
     let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gasto mensual del programa">`;
     ticks.forEach(v => { s += `<line class="grid" x1="${m.l}" x2="${w - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v >= 1000 ? '$' + num.format(v / 1000) + ' k' : '$' + v}</text>`; });
-    const keys = [['lab', 'var(--s1)'], ['sampling', 'var(--s2)'], ['travel', 'var(--s3)'], ['eng', 'var(--s4)']];
+    const keys = [['lab', 'var(--s1)'], ['sampling', 'var(--s2)'], ['travel', 'var(--s3)'], ['eng', 'var(--s4)'], ['auto', 'var(--s5)']];
     const gap = bw > 6 ? 2 : 0.5;
     T.forEach((r, i) => {
       let base = 0;
       keys.forEach(([k, col]) => {
-        if (r[k] <= 0) return;
-        const y0 = Y(base), y1 = Y(base + r[k]);
+        if (!(r[k] > 0)) return;
+        const y0 = Math.max(m.t, Y(base)), y1 = Math.max(m.t, Y(base + r[k]));
         s += `<rect x="${(X(i) + gap / 2).toFixed(1)}" y="${y1.toFixed(1)}" width="${Math.max(0.5, bw - gap).toFixed(1)}" height="${Math.max(0, y0 - y1 - (base > 0 ? 1 : 0)).toFixed(1)}" fill="${col}"/>`;
         base += r[k];
       });
@@ -837,6 +940,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     T.forEach((r, i) => { if (r.m % every === 0) s += `<text x="${X(i) + bw / 2}" y="${h - m.b + 16}" text-anchor="middle">${calShort(r.m)}</text>`; });
     s += `<text x="${(m.l + w - m.r) / 2}" y="${h - 2}" text-anchor="middle">Mes del programa; el primero es el arranque del plan</text>`;
     s += `<line class="ax" x1="${m.l}" x2="${w - m.r}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+    if (clip) s += `<text x="${X(1) + 4}" y="${m.t + 10}" style="fill:var(--ink);font-weight:600">◂ Arranque: ${fmtBig(T[0].total)}, barra recortada</text>`;
     s += `<rect id="cHit" x="${m.l}" y="${m.t}" width="${w - m.l - m.r}" height="${h - m.t - m.b}" fill="transparent"/></svg>`;
     mount(el, s);
     const hit = el.querySelector('#cHit');
@@ -844,7 +948,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     const move = ev => {
       const rect = el.getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
       const i = Math.max(0, Math.min(n - 1, Math.floor((px - m.l) / bw))), r = T[i];
-      tipShow(el, X(i) + bw / 2, Y(r.total), `<b>${calLong(r.m)}</b> · ${PH[r.phase]}${r.extra ? ' · con campaña de lluvias' : ''}<br>Laboratorio: ${mxn.format(r.lab)}<br>Muestreo y aforo: ${mxn.format(r.sampling)}<br>Viáticos: ${mxn.format(r.travel)}<br>Ingeniería: ${mxn.format(r.eng)}<br><b>Total: ${mxn.format(r.total)}</b> · acumulado ${fmtBig(r.acc)}`);
+      tipShow(el, X(i) + bw / 2, Math.max(m.t, Y(r.total)), `<b>${calLong(r.m)}</b> · ${PH[r.phase]}${r.extra ? ' · con campaña de lluvias' : ''}<br>Laboratorio: ${mxn.format(r.lab)}<br>Muestreo y aforo: ${mxn.format(r.sampling)}<br>Viáticos: ${mxn.format(r.travel)}<br>Ingeniería: ${mxn.format(r.eng)}<br>Estación automática: ${mxn.format(r.auto || 0)}<br><b>Total: ${mxn.format(r.total)}</b> · acumulado ${fmtBig(r.acc)}`);
     };
     hit.addEventListener('mousemove', move); hit.addEventListener('touchstart', move, { passive: true });
     hit.addEventListener('mouseleave', () => tipHide(el));
@@ -862,7 +966,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     h += `<tr><td>Viáticos del laboratorio</td><td class="num" id="uTrav"></td><td class="num" id="qTrav"></td><td class="num" id="sTrav"></td></tr>`;
     h += `<tr class="grp"><td colspan="4">Laboratorio, por muestra</td></tr>`;
     PARAMS.forEach((x, i) => {
-      h += `<tr><td><label class="check" style="margin:0"><input type="checkbox" id="pOn_${x.id}" data-i="${i}" ${x.on ? 'checked' : ''}> ${x.name}</label><span class="note">${x.norm}${x.note ? ' · ' + x.note : ''}${x.quote ? '<span class="tag">sin precio publicado, cotizar</span>' : ''}</span></td>`
+      h += `<tr><td><label class="check" style="margin:0"><input type="checkbox" id="pOn_${x.id}" data-i="${i}" ${x.on ? 'checked' : ''}> ${x.name}</label><span class="note"><span class="tag org">${AUT[x.aut]}</span>${x.norm}${x.note ? ' · ' + x.note : ''}${x.quote ? '<span class="tag">sin precio publicado, cotizar</span>' : ''}</span></td>`
         + `<td class="num"><input type="number" id="pPr_${x.id}" data-i="${i}" min="0" step="any" value="${x.price}" aria-label="Precio de ${x.name}"></td><td class="num" id="pQ_${x.id}"></td><td class="num" id="pS_${x.id}"></td></tr>`;
     });
     h += `<tr><td>Duplicados y blancos de control de calidad</td><td class="num" id="uQa"></td><td class="num"></td><td class="num" id="sQa"></td></tr>`;
@@ -909,6 +1013,54 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     return ext + eng + iva;
   }
 
+  function buildAutoTable() {
+    const body = $('autoBody');
+    let h = '<tr class="grp"><td colspan="5">Equipo e instalación</td></tr>';
+    AUTO.forEach((x, i) => {
+      const cur = x.usd !== undefined ? 'US$' : '$';
+      h += `<tr><td><label class="check" style="margin:0"><input type="checkbox" data-a="${i}" ${x.on ? 'checked' : ''}> ${x.name}</label><span class="note"><span class="tag org">${ORIGIN[x.origin]}</span>${x.note}${x.ctrl ? ' · también en la estación de control' : ''}${x.sup ? '<span class="tag">supuesto</span>' : ''}${x.quote ? '<span class="tag">sin precio público, cotizar</span>' : ''}</span></td>`
+        + `<td class="num">${cur} <input type="number" data-a="${i}" min="0" step="any" value="${x.usd !== undefined ? x.usd : x.mxn}" aria-label="Precio de ${x.name}"></td><td class="num" id="aU_${x.id}"></td><td class="num" id="aQ_${x.id}"></td><td class="num" id="aS_${x.id}"></td></tr>`;
+    });
+    h += '<tr class="grp"><td colspan="5">Operación durante el programa</td></tr>';
+    h += '<tr><td>Visitas de limpieza, descarga y calibración<span class="note">Técnico propio, sin IVA</span></td><td></td><td class="num" id="aVisU"></td><td class="num" id="aVisQ"></td><td class="num" id="aVisS"></td></tr>';
+    h += '<tr><td>Datos celulares y plataforma</td><td></td><td class="num" id="aDatU"></td><td class="num" id="aDatQ"></td><td class="num" id="aDatS"></td></tr>';
+    h += '<tr><td>Refacciones y reposición<span class="note">Porcentaje anual sobre el valor del equipo</span></td><td></td><td class="num" id="aConU"></td><td class="num" id="aConQ"></td><td class="num" id="aConS"></td></tr>';
+    h += '<tr><td>Inversión inicial sin IVA</td><td></td><td></td><td></td><td class="num" id="aCap"></td></tr>';
+    h += '<tr><td>IVA de equipo y servicios externos</td><td></td><td></td><td></td><td class="num" id="aIva"></td></tr>';
+    h += '<tr class="total"><td>Total de las estaciones en el programa</td><td></td><td></td><td></td><td class="num" id="aTotal"></td></tr>';
+    body.innerHTML = h;
+    body.addEventListener('input', ev => {
+      const i = ev.target.dataset.a; if (i === undefined) return;
+      const x = AUTO[i];
+      if (ev.target.type === 'checkbox') x.on = ev.target.checked;
+      else { const v = parseFloat(ev.target.value) || 0; if (x.usd !== undefined) x.usd = v; else x.mxn = v; }
+      update(false);
+    });
+  }
+
+  function fillAutoTable(AU, a, months, labPerYear) {
+    const set = (id, t) => { $(id).textContent = t; };
+    AU.rows.forEach(r => { set('aU_' + r.x.id, mxn.format(r.unit)); set('aQ_' + r.x.id, r.qty ? String(r.qty) : '–'); set('aS_' + r.x.id, r.qty ? mxn.format(r.sub) : '–'); });
+    const sm = `${a.stations} × ${months} meses`;
+    set('aVisU', `${mxn.format(a.visits * a.visitHours * a.tech)}/mes`); set('aVisQ', sm); set('aVisS', mxn.format(AU.visitsM * months));
+    set('aDatU', `${mxn.format(a.data)}/mes`); set('aDatQ', sm); set('aDatS', mxn.format(a.stations * a.data * months));
+    const consM = AU.equip * (a.cons + a.risk) / 12;
+    set('aConU', `${Math.round((a.cons + a.risk) * 100)} % anual`); set('aConQ', `${months} meses`); set('aConS', mxn.format(consM * months));
+    set('aCap', mxn.format(AU.capex));
+    set('aIva', mxn.format((AU.capex + AU.extM * months) * (a.iva - 1)));
+    set('aTotal', mxn.format(AU.total));
+    const none = a.stations === 0;
+    $('automatica').style.opacity = none ? 0.55 : 1;
+    $('aInv').textContent = fmtBig(AU.capexIva);
+    $('aInvD').textContent = none ? 'sin estaciones' : `${a.stations === 2 ? 'dos estaciones' : 'una estación'}${a.iva > 1 ? ', con IVA' : ''}; equipo importado a ${num.format(a.fx)} $/US$ más ${Math.round(a.imp * 100)} %`;
+    $('aOp').textContent = mxn.format(AU.monthly);
+    $('aOpD').textContent = `visitas ${mxn.format(AU.visitsM)}, datos y refacciones ${mxn.format(AU.extM * a.iva)}`;
+    $('aTot').textContent = fmtBig(AU.total);
+    $('aTotD').textContent = `inversión más ${months} meses de operación`;
+    $('aObs').textContent = none ? '–' : '35,040';
+    $('aObsD').textContent = `una cada 15 minutos, contra ${num.format(labPerYear)} muestras de laboratorio al año por punto`;
+  }
+
   function buildPriceSources() {
     const f = v => v === undefined ? '–' : mxn2.format(v);
     $('priceSrcBody').innerHTML = PARAMS.map(x => `<tr><td>${x.name}</td><td class="num">${f(x.p.il)}</td><td class="num">${f(x.p.gm)}</td><td class="num">${f(x.p.lf)}</td></tr>`).join('');
@@ -921,7 +1073,10 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     h += `<div class="bar" style="left:0;width:${pos(c.monthsB)};background:var(--s2)">Línea base · ${c.monthsB} m</div>`;
     if (c.monthsW > 0) h += `<div class="bar" style="left:${pos(c.monthsB)};width:${pos(c.monthsW)};background:var(--s3)">Obra · ${c.monthsW} m</div>`;
     h += `<div class="bar" style="left:${pos(c.monthsB + c.monthsW)};width:${pos(c.monthsP)};background:var(--s1)">Seguimiento · ${c.monthsP} m</div>`;
-    h += '</div></div><div class="lane"><span>Campañas</span><div class="track">';
+    h += '</div></div>';
+    const st = parseFloat($('autoStations').value) || 0;
+    if (st) h += `<div class="lane"><span>Estación</span><div class="track"><div class="bar" style="left:0;width:100%;background:var(--s5)">${st === 2 ? 'Dos estaciones automáticas' : 'Una estación automática'} · lectura cada 15 min</div></div></div>`;
+    h += '<div class="lane"><span>Campañas</span><div class="track">';
     const dt = 1 / c.perMonth;
     for (let t = dt; t <= span + 1e-9; t += dt) {
       const inW = t > c.monthsB && t <= c.monthsB + c.monthsW;
@@ -952,11 +1107,15 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
 
     const { m: minM, rec } = recommended(S.p);
     const C = costs(S.c);
-    const total = fillComponentTable(S, C);
+    const a = readAuto(S.c), AU = autoCosts(a, C.totalSpan);
+    let acc = 0;
+    C.timeline.forEach(r => { r.auto = a.stations ? (r.m === 0 ? AU.capexIva : AU.monthly) : 0; r.total += r.auto; acc += r.total; r.acc = acc; });
+    fillAutoTable(AU, a, C.totalSpan, Math.round(12 * S.p.perMonth + (S.c.extraPerYear || 0)));
+    const total = fillComponentTable(S, C) + AU.total;
     const nParams = PARAMS.filter(x => x.on).length;
     const fname = FREQ_NAME[$('freq').value] || 'mensual';
 
-    $('resumenSub').textContent = `${S.c.points} puntos, muestreo ${fname}, ${nParams} parámetros por muestra, diseño ${S.p.design === 'baci' ? 'control-impacto' : 'antes y después en un punto'}. Prueba sobre ${S.target.name}.`;
+    $('resumenSub').textContent = `${a.stations ? (a.stations === 2 ? 'Dos estaciones automáticas, ' : 'Una estación automática, ') : 'Sin estación automática, '}${S.c.points} puntos de laboratorio, muestreo ${fname}, ${nParams} parámetros por muestra, diseño ${S.p.design === 'baci' ? 'control-impacto' : 'antes y después en un punto'}. Prueba sobre ${S.target.name}.`;
     $('kMin').innerHTML = minM ? `${minM} <small>meses</small>` : '&gt; 240 <small>meses</small>';
     $('kMinD').textContent = minM ? `antes y después, ${Math.round(minM * S.p.perMonth)} campañas en cada periodo` : 'con estos supuestos no se alcanza; baja el CV o busca una reducción mayor';
     const pw = powerAnalytic(S.p, S.c.monthsB, S.c.monthsP);
@@ -967,7 +1126,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     $('kDur').innerHTML = `${C.totalSpan} <small>meses</small>`;
     $('kDurD').textContent = `${S.c.monthsB} base + ${S.c.monthsW} obra + ${S.c.monthsP} seguimiento, de ${calShort(1)} a ${calShort(C.totalSpan)}`;
     $('kCost').textContent = fmtBig(total);
-    $('kCostD').textContent = `${mxn.format(C.perCampaign.total)} por campaña · ${C.campaigns} campañas${C.extraCampaigns ? ' + ' + C.extraCampaigns + ' en lluvias' : ''}${S.c.iva ? ' · con IVA' : ''}`;
+    $('kCostD').textContent = `${mxn.format(C.perCampaign.total)} por campaña · ${C.campaigns} campañas${C.extraCampaigns ? ' + ' + C.extraCampaigns + ' en lluvias' : ''}${a.stations ? ' · estaciones ' + fmtBig(AU.total) : ''}${S.c.iva ? ' · con IVA' : ''}`;
 
     const m12 = mdc(S.p, 12);
     let v = minM
@@ -990,7 +1149,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
 
   // ---------- eventos ----------
   function init() {
-    buildComponentTable(); buildPriceSources();
+    buildComponentTable(); buildAutoTable(); buildPriceSources();
     const sel = $('startMonth'); let opts = '';
     for (let k = 0; k < 15; k++) { const t = 2026 * 12 + 9 + k, y = Math.floor(t / 12), mm = t % 12 + 1; opts += `<option value="${y}-${mm}"${y === 2026 && mm === 11 ? ' selected' : ''}>${MES_L[mm - 1]} ${y}</option>`; }
     sel.innerHTML = opts;
