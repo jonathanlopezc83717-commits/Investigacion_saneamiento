@@ -215,6 +215,7 @@ h3 { font-size: 15px; margin: 6px 0 8px; }
           </select>
           <div class="hint">La de control lleva sonda, nivel, datalogger, comunicación y energía; el muestreador y los sensores opcionales van solo en la de impacto.</div>
         </div>
+        <label class="check"><input type="checkbox" id="subst" checked> La sonda sustituye al laboratorio en pH, temperatura, conductividad y oxígeno en los puntos con estación</label>
         <div class="row2">
           <div class="field"><label for="fx">Tipo de cambio ($/US$)</label><input type="number" id="fx" min="1" step="any" value="17.84"></div>
           <div class="field"><label for="importPct">Importación (%) <span class="tag">supuesto</span></label><input type="number" id="importPct" min="0" max="100" step="1" value="30"></div>
@@ -682,6 +683,8 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     { id: 'color', name: 'Color verdadero', norm: 'NMX-AA-017-SCFI-2021', p: { gm: 500 }, on: false, aut: 'semi', note: 'Se estima con el espectrómetro UV-Vis' }
   ];
   const AUT = { dir: 'Automatizable', semi: 'Semiautomatizable' };
+  // puntos que mandan muestra al laboratorio: en los que tienen estación, la sonda sustituye a los parámetros directos
+  const labPoints = (x, c) => x.aut === 'dir' && c.subst ? Math.max(0, c.points - Math.min(c.stations, c.points)) : c.points;
   PARAMS.forEach(x => { x.price = Math.round(med3(Object.values(x.p)) * 100) / 100; });
 
   const TARGETS = {
@@ -755,11 +758,13 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     const c = {
       points: v('points'), perMonth: p.perMonth,
       monthsB: Math.max(1, Math.round(v('monthsB') || 1)), monthsW: Math.max(0, Math.round(v('monthsW') || 0)), monthsP: Math.max(1, Math.round(v('monthsP') || 1)),
-      monitorWorks: $('monitorWorks').checked, params: PARAMS, qaPct: v('qaPct'), startMonth: START.m, extraPerYear: v('extraRain') || 0,
+      monitorWorks: $('monitorWorks').checked, stations: v('autoStations') || 0, subst: $('subst').checked, qaPct: v('qaPct'), startMonth: START.m, extraPerYear: v('extraRain') || 0,
       samplingMode: $('samplingMode').value, samplingPoint: v('samplingPoint') || 0, samplingDay: v('samplingDay') || 0, pointsPerDay: v('pointsPerDay') || 1,
       travel: v('travel') || 0, flowOn: $('flowOn').checked, flowPrice: v('flowPrice') || 0, iva: $('iva').checked,
       rate: v('rate') || 0, designHours: v('designHours') || 0, reportHours: v('reportHours') || 0, finalHours: v('finalHours') || 0
     };
+    // el precio efectivo por punto reparte la muestra que la sonda ya no manda al laboratorio
+    c.params = PARAMS.map(x => ({ on: x.on, price: x.price * labPoints(x, c) / Math.max(1, c.points) }));
     return { p, c, target: TARGETS[$('target').value], med: { down: v('medDown') || 1, up: v('medUp') || 1 } };
   }
 
@@ -965,6 +970,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     h += `<tr id="flowRow"><td>Aforo de caudal<span class="note">Para estimar cargas contaminantes en kg/día</span></td><td class="num" id="uFlow"></td><td class="num" id="qFlow"></td><td class="num" id="sFlow"></td></tr>`;
     h += `<tr><td>Viáticos del laboratorio</td><td class="num" id="uTrav"></td><td class="num" id="qTrav"></td><td class="num" id="sTrav"></td></tr>`;
     h += `<tr class="grp"><td colspan="4">Laboratorio, por muestra</td></tr>`;
+    h += `<tr><td colspan="4"><span class="note" id="substNote"></span></td></tr>`;
     PARAMS.forEach((x, i) => {
       h += `<tr><td><label class="check" style="margin:0"><input type="checkbox" id="pOn_${x.id}" data-i="${i}" ${x.on ? 'checked' : ''}> ${x.name}</label><span class="note"><span class="tag org">${AUT[x.aut]}</span>${x.norm}${x.note ? ' · ' + x.note : ''}${x.quote ? '<span class="tag">sin precio publicado, cotizar</span>' : ''}</span></td>`
         + `<td class="num"><input type="number" id="pPr_${x.id}" data-i="${i}" min="0" step="any" value="${x.price}" aria-label="Precio de ${x.name}"></td><td class="num" id="pQ_${x.id}"></td><td class="num" id="pS_${x.id}"></td></tr>`;
@@ -999,7 +1005,7 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     set('uTrav', mxn2.format(c.travel) + '/campaña'); set('qTrav', `${camp}`); set('sTrav', mxn.format(c.travel * camp));
     let lab = 0;
     PARAMS.forEach(x => {
-      const q = x.on ? c.points * camp : 0, sub = q * x.price; lab += sub;
+      const q = x.on ? labPoints(x, c) * camp : 0, sub = q * x.price; lab += sub;
       set('pQ_' + x.id, x.on ? num.format(q) : '–'); set('pS_' + x.id, x.on ? mxn.format(sub) : '–');
     });
     const qa = lab * c.qaPct / 100;
@@ -1112,6 +1118,10 @@ if (typeof module !== 'undefined') module.exports = { normCdf, normInv, tInv, rn
     C.timeline.forEach(r => { r.auto = a.stations ? (r.m === 0 ? AU.capexIva : AU.monthly) : 0; r.total += r.auto; acc += r.total; r.acc = acc; });
     fillAutoTable(AU, a, C.totalSpan, Math.round(12 * S.p.perMonth + (S.c.extraPerYear || 0)));
     const total = fillComponentTable(S, C) + AU.total;
+    const covered = S.c.subst ? Math.min(S.c.stations, S.c.points) : 0;
+    $('substNote').textContent = covered
+      ? `pH, temperatura, conductividad y oxígeno disuelto solo se mandan al laboratorio desde ${S.c.points - covered} de ${S.c.points} puntos: en ${covered === 1 ? 'el punto con estación los mide' : `los ${covered} puntos con estación los mide`} la sonda, y el técnico los verifica con un medidor portátil en cada visita. Los semiautomatizables se siguen analizando en todos los puntos para calibrar los sensores y dar el dato oficial.`
+      : 'Todos los parámetros se analizan en el laboratorio en cada punto.';
     const nParams = PARAMS.filter(x => x.on).length;
     const fname = FREQ_NAME[$('freq').value] || 'mensual';
 
